@@ -1,0 +1,40 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
+
+    defaultConfig {
+        applicationId "com.diy.cmtdemoapp01"
+        minSdkVersion 22
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        preDexLibraries = false
+        javaMaxHeapSize "4g"
+    }
+
+    project.tasks.withType(com.android.build.gradle.tasks.Dex) {
+        additionalParameters=['--core-library']
+    }
+
+    packagingOptions {
+        exclude 'META-INF/jersey-module-version'
+    }
+}
+
+dependencies {
+    compile files('libs/gson-2.4.jar')
+    compile files('libs/saxon9pe.jar')
+    compile files('libs/json-20090211.jar')
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
+}

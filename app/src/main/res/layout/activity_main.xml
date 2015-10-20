@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TabHost
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@android:id/tabhost" 
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:orientation="vertical"
+        android:gravity="center">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="60dip"
+            android:gravity="center"
+            android:id="@+id/appTitleLayout">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/appTitleImageView1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="MTFDemo"
+                android:id="@+id/appTitle" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/appTitleImageView2" />
+
+        </LinearLayout>
+
+        <FrameLayout
+			android:id="@android:id/tabcontent"
+			android:layout_width="fill_parent" 
+			android:layout_height="0dip"
+			android:layout_weight="1" 
+			android:padding="20dip" 
+			android:background="#fff"/>
+
+		<!--RadioGroup
+			android:id="@+id/states"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" 
+			android:orientation="horizontal"
+			android:checkedButton="@+id/first"
+            android:gravity="center_horizontal">
+
+			<RadioButton
+				android:id="@+id/first" 
+				android:width="80dip" 
+				android:height="70dip"
+				android:background="@drawable/radio_button_background" />
+				
+			<RadioButton 
+				android:id="@+id/second" 
+				android:width="80dip" 
+				android:height="70dip" 
+				android:background="@drawable/radio_button_background" />
+				
+			<RadioButton 
+				android:id="@+id/third"
+				android:width="60dip"
+				android:height="70dip"
+				android:background="@drawable/radio_button_background"
+                android:gravity="center" />
+				
+			<RadioButton 
+				android:id="@+id/fourth" 
+				android:width="80dip" 
+				android:height="70dip"
+				android:background="@drawable/radio_button_background" />
+				
+		</RadioGroup-->
+
+		<TabWidget 
+			android:id="@android:id/tabs"
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:tabStripEnabled="false"
+			/>
+
+
+        <!--android:layout_height="200dip android:layout_weight="0"  android:visibility="gone" /-->
+			
+	</LinearLayout>
+	
+</TabHost>

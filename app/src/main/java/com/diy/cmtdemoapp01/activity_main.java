@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
@@ -16,8 +15,9 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
 
     TabHost tabHost;
     Resources r;
-    String color_primary;
-    String color_secondary;
+    String color_background_primary;
+    String color_background_secondary;
+    String color_text_primary;
     TextView tt;
     ImageView ti1, ti2;
     LinearLayout tl;
@@ -28,8 +28,9 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         super.onCreate(savedInstanceState);
 
         r = getResources();
-        color_primary =r.getString(R.string.color_primary);
-        color_secondary =r.getString(R.string.color_secondary);
+        color_background_primary = r.getString(R.string.color_background_primary);
+        color_background_secondary = r.getString(R.string.color_background_secondary);
+        color_text_primary = r.getString(R.string.color_text_primary);
 
         //this.requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 
@@ -48,9 +49,10 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         ti2 = (ImageView)findViewById(R.id.appTitleImageView2);
         tl = (LinearLayout)findViewById(R.id.appTitleLayout);
         tt.setText(R.string.app_name);
-        ti1.setImageDrawable(r.getDrawable(R.drawable.ic_attach_file_black_48dp));
-        ti2.setImageDrawable(r.getDrawable(R.drawable.ic_attach_file_black_48dp));
-        tl.setBackgroundColor(Color.parseColor(color_primary));
+        tt.setTextColor(Color.parseColor(color_text_primary));
+        ti1.setImageDrawable(r.getDrawable(R.drawable.ic_settings_white_48dp));
+        ti2.setImageDrawable(r.getDrawable(R.drawable.ic_settings_white_48dp));
+        tl.setBackgroundColor(Color.parseColor(color_background_primary));
 
         // create tabhost to contain tabs
         tabHost = getTabHost();
@@ -64,21 +66,20 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         Intent settingsIntent = new Intent(this, activity_settings.class);
         ts_camera.setContent(settingsIntent);
 
-
-        for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) { tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_primary)); }
-        tabHost.getTabWidget().getChildAt(0).setBackgroundColor(Color.parseColor(color_secondary));
-
-        tabHost.getTabWidget().setCurrentTab(5);
-        createTabContent("settings");
+        for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) { tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_background_primary)); }
+        tabHost.getTabWidget().getChildAt(0).setBackgroundColor(Color.parseColor(color_background_secondary));
 
         tabHost.setOnTabChangedListener(this);
 
         init();
 
+        tabHost.getTabWidget().getChildAt(0).setVisibility(View.GONE);
         tabHost.getTabWidget().getChildAt(1).setVisibility(View.GONE);
         tabHost.getTabWidget().getChildAt(2).setVisibility(View.GONE);
-        //tabHost.getTabWidget().getChildAt(3).setVisibility(View.GONE);
+        tabHost.getTabWidget().getChildAt(3).setVisibility(View.GONE);
 
+        tabHost.getTabWidget().setCurrentTab(5);
+        createTabContent("settings");
     }
 
     @Override
@@ -109,9 +110,9 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
     @Override
     public void onTabChanged(String tabId) {
         for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) {
-            tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_primary));
+            tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_background_primary));
         }
-        tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor(color_secondary));
+        tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor(color_background_secondary));
         createTabContent(tabId);
     }
 

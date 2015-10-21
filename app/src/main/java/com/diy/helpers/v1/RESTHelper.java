@@ -25,7 +25,7 @@ import java.util.List;
 
 public class RESTHelper {
 
-    private String TAG = this.getClass().getName();
+    private String TAG = this.getClass().getSimpleName();
 
     private RESTHelperCallRequest req = new RESTHelperCallRequest();
     private RESTHelperCallResult resp = null;

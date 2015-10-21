@@ -28,7 +28,7 @@ import java.util.List;
 
 public class activity_settings extends Activity {
 
-    private String TAG = this.getClass().getName();
+    private String TAG = this.getClass().getSimpleName();
 
     EditText etServerIP;
     Spinner spScenarios, spConfigFiles;
@@ -142,6 +142,8 @@ public class activity_settings extends Activity {
             Log.i(TAG, res.getStatus());
             if (res.getStatus()!= "error") {
                 //Log.i(TAG, res.getContent());
+                String content = res.getContent();
+                //((activity_main)this.getParent()).configFile = content;
                 if (AndroidHelper.checkExternalMedia().indexOf("W")>=0) {
                     File root = android.os.Environment.getExternalStorageDirectory();
                     File dir = new File (root.getAbsolutePath() + "/MTFLocal");
@@ -150,7 +152,7 @@ public class activity_settings extends Activity {
                     try {
                         FileOutputStream f = new FileOutputStream(file);
                         PrintWriter pw = new PrintWriter(f);
-                        pw.println(res.getContent());
+                        pw.println(content);
                         pw.flush();
                         pw.close();
                         f.close();
@@ -170,6 +172,10 @@ public class activity_settings extends Activity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void getLocalConfigFile(View view) {
+        ((activity_main)this.getParent()).configFile = "test";
     }
 
 }

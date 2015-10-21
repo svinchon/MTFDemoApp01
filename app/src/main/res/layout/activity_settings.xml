@@ -3,13 +3,28 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/etServerIP"
-        android:text="192.168.0.21"
-        android:gravity="center"
-        />
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Server"
+            android:id="@+id/textView"
+            android:gravity="center_vertical" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/etServerIP"
+            android:text="192.168.0.21"
+            android:gravity="center|center_vertical"
+            />
+    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"
@@ -21,11 +36,25 @@
         android:onClick="getScenariosList"
         />
 
-    <Spinner
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/spScenarios"
-        />
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/textView2"
+            android:gravity="center_vertical" />
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spScenarios"
+            android:gravity="center_vertical" />
+    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"
@@ -33,21 +62,65 @@
         android:text="get Config Files List"
         android:id="@+id/btnGetConfigFiles"
         android:nestedScrollingEnabled="true"
+        android:textAllCaps="false"
         android:onClick="getConfigFilesList"
         />
 
-    <Spinner
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/spConfigFiles" />
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/textView3"
+            android:gravity="center_vertical" />
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spConfigFiles" />
+    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="get Config Files List"
+        android:text="load Config From Server"
         android:id="@+id/btnLoadConfig"
         android:nestedScrollingEnabled="true"
+        android:textAllCaps="false"
         android:onClick="getConfigFile"
         />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/textView4"
+            android:gravity="center_vertical" />
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spLocalConfigFiles" />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="load Config From Mobile"
+        android:id="@+id/btnLoadLocalConfig"
+        android:nestedScrollingEnabled="true"
+        android:textAllCaps="false"
+        android:onClick="getLocalConfigFile" />
 
 </LinearLayout>

@@ -21,11 +21,14 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
     TextView tt;
     ImageView ti1, ti2;
     LinearLayout tl;
+    String configFile;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        configFile = "";
 
         r = getResources();
         color_background_primary = r.getString(R.string.color_background_primary);
@@ -37,6 +40,7 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         this.setContentView(R.layout.activity_main);
 
         //this.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.titlebar);
+
         //tt = (TextView) findViewById(R.id.titlebartext);
         //ti = (ImageView)findViewById(R.id.titlebarimage);
         //tl = (LinearLayout)findViewById(R.id.titlebarlayout);
@@ -57,50 +61,81 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         // create tabhost to contain tabs
         tabHost = getTabHost();
 
-        tabHost.addTab(tabHost.newTabSpec("camera").setIndicator("", getResources().getDrawable(R.drawable.ic_camera)).setContent(this));
-        tabHost.addTab(tabHost.newTabSpec("edit").setIndicator("", getResources().getDrawable(R.drawable.ic_edit)).setContent(this));
-        tabHost.addTab(tabHost.newTabSpec("attach").setIndicator("", getResources().getDrawable(R.drawable.ic_attach)).setContent(this));
-        tabHost.addTab(tabHost.newTabSpec("proceed").setIndicator("", getResources().getDrawable(R.drawable.ic_flight_takeoff)).setContent(this));
-        TabHost.TabSpec ts_camera = tabHost.newTabSpec("settings");
-        tabHost.addTab(ts_camera.setIndicator("", getResources().getDrawable(R.drawable.ic_settings)).setContent(this));
-        Intent settingsIntent = new Intent(this, activity_settings.class);
-        ts_camera.setContent(settingsIntent);
+//        tabHost.addTab(tabHost.newTabSpec("camera").setIndicator("", getResources().getDrawable(R.drawable.ic_camera)).setContent(this));
+//        tabHost.addTab(tabHost.newTabSpec("edit").setIndicator("", getResources().getDrawable(R.drawable.ic_edit)).setContent(this));
+//        tabHost.addTab(tabHost.newTabSpec("attach").setIndicator("", getResources().getDrawable(R.drawable.ic_attach)).setContent(this));
+//        tabHost.addTab(tabHost.newTabSpec("proceed").setIndicator("", getResources().getDrawable(R.drawable.ic_flight_takeoff)).setContent(this));
 
-        for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) { tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_background_primary)); }
-        tabHost.getTabWidget().getChildAt(0).setBackgroundColor(Color.parseColor(color_background_secondary));
+        TabHost.TabSpec ts_capture = tabHost.newTabSpec("capture");
+        TabHost.TabSpec ts_search = tabHost.newTabSpec("search");
+        TabHost.TabSpec ts_edit = tabHost.newTabSpec("edit");
+        TabHost.TabSpec ts_attach = tabHost.newTabSpec("attach");
+        TabHost.TabSpec ts_proceed = tabHost.newTabSpec("proceed");
+        TabHost.TabSpec ts_settings = tabHost.newTabSpec("settings");
+
+        Intent captureIntent = new Intent(this, activity_capture.class);
+        Intent searchIntent = new Intent(this, activity_search.class);
+        Intent editIntent = new Intent(this, activity_view_edit_data.class);
+        Intent attachIntent = new Intent(this, activity_attach.class);
+        Intent proceedIntent = new Intent(this, activity_proceed.class);
+        Intent settingsIntent = new Intent(this, activity_settings.class);
+
+        tabHost.addTab(ts_capture.setIndicator("", getResources().getDrawable(R.drawable.ic_camera)).setContent(this));
+        tabHost.addTab(ts_search.setIndicator("", getResources().getDrawable(R.drawable.ic_search)).setContent(this));
+        tabHost.addTab(ts_edit.setIndicator("", getResources().getDrawable(R.drawable.ic_edit)).setContent(this));
+        tabHost.addTab(ts_attach.setIndicator("", getResources().getDrawable(R.drawable.ic_attach)).setContent(this));
+        tabHost.addTab(ts_proceed.setIndicator("", getResources().getDrawable(R.drawable.ic_flight_takeoff)).setContent(this));
+        tabHost.addTab(ts_settings.setIndicator("", getResources().getDrawable(R.drawable.ic_settings)).setContent(settingsIntent));
+
+        ts_capture.setContent(captureIntent);
+        ts_search.setContent(searchIntent);
+        ts_edit.setContent(editIntent);
+        ts_attach.setContent(attachIntent);
+        ts_proceed.setContent(proceedIntent);
+        ts_settings.setContent(settingsIntent);
+
+        for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) {
+            tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_background_primary));
+        }
+        tabHost.getTabWidget().getChildAt(5).setBackgroundColor(Color.parseColor("#FFFFFF"));
 
         tabHost.setOnTabChangedListener(this);
 
         init();
 
-        tabHost.getTabWidget().getChildAt(0).setVisibility(View.GONE);
-        tabHost.getTabWidget().getChildAt(1).setVisibility(View.GONE);
-        tabHost.getTabWidget().getChildAt(2).setVisibility(View.GONE);
-        tabHost.getTabWidget().getChildAt(3).setVisibility(View.GONE);
+        //tabHost.getTabWidget().getChildAt(0).setVisibility(View.GONE);
+        //tabHost.getTabWidget().getChildAt(1).setVisibility(View.GONE);
+        //tabHost.getTabWidget().getChildAt(2).setVisibility(View.GONE);
+        //tabHost.getTabWidget().getChildAt(3).setVisibility(View.GONE);
 
-        tabHost.getTabWidget().setCurrentTab(5);
-        createTabContent("settings");
+        //tabHost.getTabWidget().getChildAt(5).setVisibility(View.GONE);
+        //tabHost.getTabWidget().getChildAt(5).setVisibility(View.VISIBLE);
+
+        //tabHost.getTabWidget().setCurrentTab(5);
+        tabHost.setCurrentTab(5);
+        //onTabChanged("settings");
+        //createTabContent("settings");
     }
 
     @Override
     public View createTabContent(String tag) {
         TextView textView = new TextView(this);
-        textView.setTextColor(Color.BLACK);
-        textView.setTextSize(20);
-        switch (tag) {
-            case "settings":
-                textView.setText(R.string.flickr);
-                break;
-            case "ebay":
-                textView.setText(R.string.ebay);
-                break;
-            case "skype":
-                textView.setText(R.string.skype);
-                break;
-            case "you_tube":
-                textView.setText(R.string.you_tube);
-                break;
-        }
+//        textView.setTextColor(Color.BLACK);
+//        textView.setTextSize(20);
+//        switch (tag) {
+//            case "settings":
+//                textView.setText(R.string.flickr);
+//                break;
+//            case "ebay":
+//                textView.setText(R.string.ebay);
+//                break;
+//            case "skype":
+//                textView.setText(R.string.skype);
+//                break;
+//            case "you_tube":
+//                textView.setText(R.string.you_tube);
+//                break;
+//        }
         return textView;
     }
 
@@ -112,8 +147,8 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) {
             tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_background_primary));
         }
-        tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor(color_background_secondary));
-        createTabContent(tabId);
+        tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#FFFFFF"));
+        //createTabContent(tabId);
     }
 
 }

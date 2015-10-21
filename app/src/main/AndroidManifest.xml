@@ -26,6 +26,31 @@
             android:name=".activity_settings"
             android:theme="@style/CustomTheme"
         />
+        <activity
+            android:name=".activity_view_edit_data"
+            android:theme="@style/CustomTheme"
+            />
+
+        <activity
+        android:name=".activity_attach"
+        android:theme="@style/CustomTheme"
+        />
+
+        <activity
+        android:name=".activity_proceed"
+        android:theme="@style/CustomTheme"
+        />
+
+        <activity
+        android:name=".activity_capture"
+        android:theme="@style/CustomTheme"
+        />
+
+        <activity
+            android:name=".activity_search"
+            android:theme="@style/CustomTheme"
+            />
+
     </application>
     <uses-sdk android:minSdkVersion="10"/>
 </manifest>

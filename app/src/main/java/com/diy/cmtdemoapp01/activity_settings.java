@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -30,8 +32,10 @@ public class activity_settings extends Activity {
 
     private String TAG = this.getClass().getSimpleName();
 
+    RadioGroup rg;
+
     EditText etServerIP;
-    Spinner spScenarios, spConfigFiles;
+    Spinner spServerScenarios, spServerConfigFiles, spLocalScenarios, spLocalConfigFiles;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,15 +44,27 @@ public class activity_settings extends Activity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_settings);
         etServerIP = (EditText)findViewById(R.id.etServerIP);
-        spScenarios = (Spinner)findViewById(R.id.spScenarios);
-        spConfigFiles = (Spinner)findViewById(R.id.spConfigFiles);
+        spServerScenarios = (Spinner)findViewById(R.id.spScenarios);
+        spServerConfigFiles = (Spinner)findViewById(R.id.spConfigFiles);
+        spLocalScenarios = (Spinner)findViewById(R.id.spLocalScenarios);
+        spLocalScenarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                getLocalConfigFilesList();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        spLocalConfigFiles = (Spinner)findViewById(R.id.spLocalConfigFiles);
+        rg = (RadioGroup) findViewById(R.id.rg);
     }
 
-    public void getScenariosList(View view) {
+    public void getServerScenariosList(View view) {
         Log.i(TAG, "button was pressed"); // write info message to log
         try {
             String ip = etServerIP.getText().toString(); // get server ip from text field
-            String url ="http://"+ip+":18080/MTFServer01/rest/MTFServer01REST/getScenariosList";
+            String url ="http://"+ip+":80/MTFServer01/rest/MTFServer01REST/getServerScenariosList";
             Log.i(TAG, "url: "+url); // write info message to log
             RESTHelperCallRequest req = new RESTHelperCallRequest(); // prepare request
             req.setURL(url);
@@ -73,7 +89,7 @@ public class activity_settings extends Activity {
                         list
                 );
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spScenarios.setAdapter(adapter); // associate adapter to spinner
+                spServerScenarios.setAdapter(adapter); // associate adapter to spinner
             } else {
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
             }
@@ -86,7 +102,7 @@ public class activity_settings extends Activity {
         Log.i(TAG, "button was pressed");
         try {
             String ip = etServerIP.getText().toString();
-            String scenario = spScenarios.getSelectedItem().toString();
+            String scenario = spServerScenarios.getSelectedItem().toString();
             String url ="http://"+ip+":18080/MTFServer01/rest/MTFServer01REST/getConfigFilesList";
             Log.i(TAG, "url: "+url);
             RESTHelperCallRequest req = new RESTHelperCallRequest();
@@ -113,7 +129,7 @@ public class activity_settings extends Activity {
                         list
                 );
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spConfigFiles.setAdapter(adapter);
+                spServerConfigFiles.setAdapter(adapter);
             } else {
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
             }
@@ -126,8 +142,8 @@ public class activity_settings extends Activity {
         Log.i(TAG, "button was pressed");
         try {
             String ip = etServerIP.getText().toString();
-            String scenario = spScenarios.getSelectedItem().toString();
-            String configFile = spConfigFiles.getSelectedItem().toString();
+            String scenario = spServerScenarios.getSelectedItem().toString();
+            String configFile = spServerConfigFiles.getSelectedItem().toString();
             String url ="http://"+ip+":18080/MTFServer01/rest/MTFServer01REST/getConfigFile";
             Log.i(TAG, "url: "+url);
             RESTHelperCallRequest req = new RESTHelperCallRequest();
@@ -178,73 +194,67 @@ public class activity_settings extends Activity {
         ((activity_main)this.getParent()).configFile = "test";
     }
 
+    public void activateLocal(View view) {
+        View v2 = (View)findViewById(R.id.tab2);
+        View v1 = (View)findViewById(R.id.tab1);
+        v1.setVisibility(View.GONE);
+        v2.setVisibility(View.VISIBLE);
+        getLocalScenariosList();
+    }
+
+    public void activateServer(View view) {
+        View v2 = (View)findViewById(R.id.tab2);
+        View v1 = (View)findViewById(R.id.tab1);
+        v1.setVisibility(View.VISIBLE);
+        v2.setVisibility(View.GONE);
+    }
+
+    public void getLocalScenariosList() {
+        try {
+            List<String> list=new ArrayList<String>();
+            if (AndroidHelper.checkExternalMedia().indexOf("R")>=0) {
+                File root = android.os.Environment.getExternalStorageDirectory();
+                File dir = new File(root.getAbsolutePath() + "/MTFLocal/Scenarios");
+                String[] scenarios = dir.list();
+                for (int i = 0; i < scenarios.length; i++) {
+                    list.add((String) scenarios[i]);
+                }
+                Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        list
+                );
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spLocalScenarios.setAdapter(adapter); // associate adapter to spinner
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }       //Spinner spLocalScenarios = (Spinner)findViewById();
+    }
+
+    public void getLocalConfigFilesList() {
+        try {
+            List<String> list=new ArrayList<String>();
+            String scenario = spLocalScenarios.getSelectedItem().toString();
+            if (AndroidHelper.checkExternalMedia().indexOf("R")>=0) {
+                File root = android.os.Environment.getExternalStorageDirectory();
+                File dir = new File(root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario);
+                String[] scenarios = dir.list();
+                for (int i = 0; i < scenarios.length; i++) {
+                    list.add((String) scenarios[i]);
+                }
+                Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        list
+                );
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spLocalConfigFiles.setAdapter(adapter); // associate adapter to spinner
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }       //Spinner spLocalScenarios = (Spinner)findViewById();
+    }
 }
-
-//public static final String PREFS_NAME = "MyPrefsFile";
-//// Restore preferences
-//SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-//boolean silent = settings.getBoolean("silentMode", false);
-//// We need an Editor object to make preference changes.
-//// All objects are from android.context.Context
-//SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-//SharedPreferences.Editor editor = settings.edit();
-//editor.putBoolean("silentMode", mSilentMode);
-//// Commit the edits!
-//editor.commit();
-
-//            OkHttpClient client = new OkHttpClient();
-//            RequestBody body = RequestBody.create(
-//                    MediaType.parse("application/json; charset=utf-8"),
-//                    "{ toto: tutu }"
-//            );
-//            Request request = new Request.Builder()
-//                .url(url)
-//                .post(body)
-//                .build();
-//            Response response = client.newCall(request).execute();
-//            Log.i(TAG, "response body: " + response.body().string());
-
-// FROM XCP MOBILE BANKING APP
-//        android {
-//            useLibrary 'org.apache.http.legacy'
-//        }//
-//        import org.apache.http.HttpResponse;
-//        import org.apache.http.client.ClientProtocolException;
-//        import org.apache.http.client.methods.HttpGet;
-//        import org.apache.http.impl.client.DefaultHttpClient;
-//        import org.apache.http.util.EntityUtils;
-
-//        DefaultHttpClient client = new DefaultHttpClient();
-//        HttpPost request = new HttpPost(CBatchURI);
-//        request.addHeader("Content-Type", "application/vnd.emc.captiva+json; charset=utf-8");
-//        request.addHeader("Accept", "application/vnd.emc.captiva+json, application/json");
-//        request.addHeader("Cookie", "CPTV-TICKET=" + ticket);
-//        //Serialise the JSON
-//        String json = gson.toJson(BatchRequest);
-//        //Now Try to post
-//        boolean IsValidJSON = true;
-//        request.setEntity(new ByteArrayEntity(json.toString().getBytes("UTF8")));
-//        HttpResponse response = client.execute(request);
-//        delay(2);
-//        String strResponse = EntityUtils.toString(response.getEntity(), "UTF8");
-
-// FROM WEB EXAMPLE
-//        URL url = new URL(urlString);
-//        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//        in = new BufferedInputStream(urlConnection.getInputStream());
-
-
-// FROM ECIPSE
-//        RESTHelper rh = new RESTHelper();
-//        RESTHelperCallRequest req = rh.getReq();
-//        req.setURL("http://192.168.0.22:18080/MTFServer01/rest/MTFServer01REST/getConfigFilesList");
-//        try {
-//            rh.execute();
-//            RESTHelperCallResult res = rh.getRESTCallResult();
-//            Log.v("DEBUG", "fff" + res.getContent());
-//        } catch (Exception e) {
-//            Log.v("ERROR", e.getMessage() + " - probably unable to access url");
-//            e.printStackTrace();
-//        }
-
-

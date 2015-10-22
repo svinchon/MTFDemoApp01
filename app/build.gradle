@@ -37,4 +37,11 @@ dependencies {
     compile files('libs/saxon9pe.jar')
     compile files('libs/json-20090211.jar')
     compile 'com.squareup.okhttp:okhttp:2.5.0'
+    compile(name: 'captivamobilesdk', ext: 'aar')
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
 }

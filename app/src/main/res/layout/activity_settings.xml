@@ -1,126 +1,213 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Server"
-            android:id="@+id/textView"
-            android:gravity="center_vertical" />
-
-        <EditText
+        <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/etServerIP"
-            android:text="192.168.0.21"
-            android:gravity="center|center_vertical"
+            android:orientation="horizontal"
+            android:id="@+id/rg"
+            >
+
+            <RadioButton
+                android:id="@+id/rbServer"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+                android:gravity="center_horizontal|bottom"
+                android:text="Server"
+                android:layout_width="fill_parent"
+                android:checked="true"
+                android:onClick="activateServer"
+                />
+
+            <RadioButton
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@null"
+                android:drawableBottom="?android:attr/listChoiceIndicatorSingle"
+                android:gravity="center_horizontal|bottom"
+                android:text="Local"
+                android:layout_width="fill_parent"
+                android:checked="false"
+                android:id="@+id/rbLocal"
+                android:onClick="activateLocal"
+                />
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tab2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        >
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Scenario"
+                android:id="@+id/textView5"
+                android:gravity="center_vertical" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spLocalScenarios"
+                android:gravity="center_vertical"
+
+                /><!--android:onClick="getLocalConfigFilesList"-->
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:touchscreenBlocksFocus="false">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Config File"
+                android:id="@+id/textView4"
+                android:gravity="center_vertical" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spLocalConfigFiles" />
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="load Config From Mobile"
+            android:id="@+id/btnLoadLocalConfig"
+            android:nestedScrollingEnabled="true"
+            android:textAllCaps="false"
+            android:onClick="getLocalConfigFile" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tab1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="false"
+        android:orientation="vertical"
+        android:showDividers="beginning|middle|end">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Server"
+                android:id="@+id/textView"
+                android:gravity="center_vertical" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/etServerIP"
+                android:text="192.168.0.21"
+                android:gravity="center|center_vertical"
+                />
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="get Scenarios List"
+            android:id="@+id/btnGetScenariosList"
+            android:nestedScrollingEnabled="false"
+            android:textAllCaps="false"
+            android:onClick="getServerScenariosList"
             />
-    </LinearLayout>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="get Scenarios List"
-        android:id="@+id/btnGetScenariosList"
-        android:nestedScrollingEnabled="false"
-        android:textAllCaps="false"
-        android:onClick="getScenariosList"
-        />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Scenario"
+                android:id="@+id/textView2"
+                android:gravity="center_vertical" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/textView2"
-            android:gravity="center_vertical" />
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spScenarios"
+                android:gravity="center_vertical" />
+        </LinearLayout>
 
-        <Spinner
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spScenarios"
-            android:gravity="center_vertical" />
-    </LinearLayout>
+            android:text="get Config Files List"
+            android:id="@+id/btnGetConfigFiles"
+            android:nestedScrollingEnabled="true"
+            android:textAllCaps="false"
+            android:onClick="getConfigFilesList"
+            />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="get Config Files List"
-        android:id="@+id/btnGetConfigFiles"
-        android:nestedScrollingEnabled="true"
-        android:textAllCaps="false"
-        android:onClick="getConfigFilesList"
-        />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Config File"
+                android:id="@+id/textView3"
+                android:gravity="center_vertical" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/textView3"
-            android:gravity="center_vertical" />
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spConfigFiles" />
+        </LinearLayout>
 
-        <Spinner
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spConfigFiles" />
+            android:text="load Config From Server"
+            android:id="@+id/btnLoadConfig"
+            android:nestedScrollingEnabled="true"
+            android:textAllCaps="false"
+            android:onClick="getConfigFile"
+            />
+
     </LinearLayout>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="load Config From Server"
-        android:id="@+id/btnLoadConfig"
-        android:nestedScrollingEnabled="true"
-        android:textAllCaps="false"
-        android:onClick="getConfigFile"
-        />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/textView4"
-            android:gravity="center_vertical" />
-
-        <Spinner
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/spLocalConfigFiles" />
-    </LinearLayout>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="load Config From Mobile"
-        android:id="@+id/btnLoadLocalConfig"
-        android:nestedScrollingEnabled="true"
-        android:textAllCaps="false"
-        android:onClick="getLocalConfigFile" />
 
 </LinearLayout>

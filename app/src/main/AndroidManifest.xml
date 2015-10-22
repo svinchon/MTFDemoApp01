@@ -51,6 +51,10 @@
             android:theme="@style/CustomTheme"
             />
 
+        <activity
+            android:name="emc.captiva.mobile.sdk.CameraActivity"
+            android:theme="@android:style/Theme.Holo">
+        </activity>
     </application>
     <uses-sdk android:minSdkVersion="10"/>
 </manifest>

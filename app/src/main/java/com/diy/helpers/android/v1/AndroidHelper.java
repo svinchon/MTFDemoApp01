@@ -1,10 +1,17 @@
 package com.diy.helpers.android.v1;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,8 +19,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import emc.captiva.mobile.sdk.CaptureImage;
@@ -54,7 +63,21 @@ public class AndroidHelper {
         inputStream.close();
     }
 
-    @SuppressLint("SimpleDateFormat")
+    public static void populateSpinner(Context ctx, Spinner spinner, String[] choices) {
+        List<String> list=new ArrayList<String>();
+        for (int i=0; i<choices.length; i++) {
+            list.add((String)choices[i]);
+        }
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(
+                ctx,
+                android.R.layout.simple_list_item_1,
+                list
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
+
+    //@SuppressLint("SimpleDateFormat")
     public static String getUniqueFilename(String prefix, String extension) {
         if (prefix == null) { prefix = ""; }
         if (extension == null) { extension = ""; }
@@ -146,6 +169,10 @@ public class AndroidHelper {
 
         // Return parameters.
         return parameters;
+    }
+
+    public static void displayMessage(String str, Context ctx) {
+        Toast.makeText(ctx, str, Toast.LENGTH_LONG).show();
     }
 
 }

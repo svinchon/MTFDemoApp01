@@ -11,17 +11,50 @@
         android:orientation="vertical"
         android:gravity="bottom">
 
-        <TextView
-            android:id="@+id/tvCaptureLog"
-            android:layout_width="match_parent"
+        <Button
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="bottom" />
+            android:text="getChoices"
+            android:id="@+id/button"
+            android:onClick="getUpfrontChoicesLevel1" />
 
         <LinearLayout
-            android:id="@+id/llImages"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"></LinearLayout>
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/tvSpinner1"
+                android:gravity="center_vertical" />
+
+            <Spinner
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spSpinner1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/tvSpinner2"
+                android:gravity="center_vertical" />
+
+            <Spinner
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spSpinner2" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnTakePicture"
@@ -30,6 +63,20 @@
             android:layout_gravity="bottom"
             android:onClick="TakePicture"
             android:text="Take Picture" />
+
+        <LinearLayout
+            android:id="@+id/llImages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"></LinearLayout>
+
+        <TextView
+            android:id="@+id/tvCaptureLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:singleLine="false"
+            android:password="false" />
 
     </LinearLayout>
 

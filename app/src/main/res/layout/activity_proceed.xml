@@ -3,11 +3,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="229dp"
-        android:id="@+id/tvProceedLog" />
-
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -15,5 +10,10 @@
         android:textAllCaps="false"
         android:id="@+id/btnProceed"
         android:onClick="getFromMain"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvProceedLog" />
 
 </LinearLayout>

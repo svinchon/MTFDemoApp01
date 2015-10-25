@@ -14,6 +14,8 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -21,12 +23,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.diy.helpers.android.v1.AndroidHelper;
+import com.diy.helpers.v1.XMLHelper;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import emc.captiva.mobile.sdk.CaptureImage;
@@ -36,8 +44,9 @@ public class activity_capture extends Activity implements PictureCallback {
 
     private String TAG = this.getClass().getSimpleName();
 
-    TextView tvCaptureLog;
+    TextView tvCaptureLog, tvSpinner1, tvSpinner2;
     LinearLayout llImages;
+    Spinner spSpinner1, spSpinner2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,19 @@ public class activity_capture extends Activity implements PictureCallback {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_capture);
         tvCaptureLog = (TextView)this.findViewById(R.id.tvCaptureLog);
+        spSpinner1 = (Spinner)this.findViewById(R.id.spSpinner1);
+        spSpinner2 = (Spinner)this.findViewById(R.id.spSpinner2);
+        tvSpinner1 = (TextView)this.findViewById(R.id.tvSpinner1);
+        tvSpinner2 = (TextView)this.findViewById(R.id.tvSpinner2);
+        spSpinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                getUpfrontChoicesLevel2();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
         llImages = (LinearLayout)this.findViewById(R.id.llImages);
         tvCaptureLog.setText(TAG + " - onCreate called");
     }
@@ -96,4 +118,78 @@ public class activity_capture extends Activity implements PictureCallback {
     @Override
     public void onPictureCanceled(int i) { }
 
- }
+    public void getUpfrontChoicesLevel1(View view) {
+        String configFile = ((activity_main)this.getParent()).configFile;
+        //String xq = "declare variable $doc external;<xdata>{for $i in $doc/root/item return $i}</xdata>";
+        String xq;
+        xq =    "declare variable $doc external; " +
+                "let $d:=$doc/MTFDemoSpecs/Capture " +
+                "return " +
+                "concat(" +
+                    "$d/UpfrontChoices/*[1]/name(), " +
+                    "';'," +
+                    "fn:string-join(" +
+                        "$d/UpfrontChoices/*[1]/Choice/Label, " +
+                        "':'" +
+                    ")" +
+                ")";
+        String r = XMLHelper.runXQueryAgainstXML_saxon9(configFile, xq);
+        String[] rr = r.split(";");
+        String label1 = rr[0];
+        String[] choices1 = rr[1].split(":");
+        tvSpinner1.setText(label1);
+        AndroidHelper.populateSpinner(this, spSpinner1, choices1);
+        tvCaptureLog.append("\n"+r);
+    }
+
+    public void getUpfrontChoicesLevel2() {
+        String configFile = ((activity_main)this.getParent()).configFile;
+        String choice1 = spSpinner1.getSelectedItem().toString();
+        //String xq = "declare variable $doc external;<xdata>{for $i in $doc/root/item return $i}</xdata>";
+        String xq;
+        xq =    "declare variable $doc external; " +
+                "let $d:=$doc/MTFDemoSpecs/Capture " +
+                "return " +
+                "concat(" +
+                    "$d/UpfrontChoices/*[1]/Choice[Label='"+choice1+"']/*[2]/name(), " +
+                    "';'," +
+                    "fn:string-join(" +
+                        "$d/UpfrontChoices/*[1]/Choice[Label='"+choice1+"']/*[2]/Choice/Label, " +
+                        "':'" +
+                    ")," +
+                    "';'," +
+                    "fn:string-join(" +
+                        "$d/UpfrontChoices/*[1]/Choice[Label='"+choice1+"']/*[2]/Choice/Mask, " +
+                        "':'" +
+                    ")" +
+                ")";
+        String r = XMLHelper.runXQueryAgainstXML_saxon9(configFile, xq);
+        String[] rr = r.split(";");
+        String label1 = rr[0];
+        String[] choices2 = rr[1].split(":");
+        tvSpinner2.setText(label1);
+        AndroidHelper.populateSpinner(this, spSpinner2, choices2);
+        tvCaptureLog.append("\n"+r);
+    }
+
+    public void refresh() {
+        this.setContentView(R.layout.activity_capture);
+        tvCaptureLog = (TextView)this.findViewById(R.id.tvCaptureLog);
+        spSpinner1 = (Spinner)this.findViewById(R.id.spSpinner1);
+        spSpinner2 = (Spinner)this.findViewById(R.id.spSpinner2);
+        tvSpinner1 = (TextView)this.findViewById(R.id.tvSpinner1);
+        tvSpinner2 = (TextView)this.findViewById(R.id.tvSpinner2);
+        spSpinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                getUpfrontChoicesLevel2();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        llImages = (LinearLayout)this.findViewById(R.id.llImages);
+        tvCaptureLog.setText(TAG + " - refresh called");
+    }
+
+}

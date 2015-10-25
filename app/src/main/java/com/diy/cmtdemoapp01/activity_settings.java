@@ -8,14 +8,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.diy.helpers.android.v1.AndroidHelper;
 import com.diy.helpers.v1.RESTHelper;
 import com.diy.helpers.v1.RESTHelperCallRequest;
 import com.diy.helpers.v1.RESTHelperCallResult;
+import com.diy.helpers.v1.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,6 +37,7 @@ public class activity_settings extends Activity {
 
     RadioGroup rg;
 
+    TextView tvSettingsLog;
     EditText etServerIP;
     Spinner spServerScenarios, spServerConfigFiles, spLocalScenarios, spLocalConfigFiles;
 
@@ -43,6 +47,8 @@ public class activity_settings extends Activity {
         StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_settings);
+        tvSettingsLog = (TextView)this.findViewById(R.id.tvSettingsLog);
+        tvSettingsLog.setText(TAG + " - onCreate called");
         etServerIP = (EditText)findViewById(R.id.etServerIP);
         spServerScenarios = (Spinner)findViewById(R.id.spScenarios);
         spServerConfigFiles = (Spinner)findViewById(R.id.spConfigFiles);
@@ -58,13 +64,20 @@ public class activity_settings extends Activity {
         });
         spLocalConfigFiles = (Spinner)findViewById(R.id.spLocalConfigFiles);
         rg = (RadioGroup) findViewById(R.id.rg);
+        getLocalScenariosList();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        tvSettingsLog.append("\nonStart");
     }
 
     public void getServerScenariosList(View view) {
         Log.i(TAG, "button was pressed"); // write info message to log
         try {
             String ip = etServerIP.getText().toString(); // get server ip from text field
-            String url ="http://"+ip+":80/MTFServer01/rest/MTFServer01REST/getServerScenariosList";
+            String url ="http://"+ip+":18080/MTFServer01/rest/MTFServer01REST/getScenariosList";
             Log.i(TAG, "url: "+url); // write info message to log
             RESTHelperCallRequest req = new RESTHelperCallRequest(); // prepare request
             req.setURL(url);
@@ -82,7 +95,8 @@ public class activity_settings extends Activity {
                 for (int i=0; i<scenarios.length(); i++) {
                     list.add((String) scenarios.get(i));
                 }
-                Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
+                AndroidHelper.displayMessage("zzz", this);
+                //Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show(); // display message
                 ArrayAdapter<String> adapter=new ArrayAdapter<String>( // adapter to link string array or array list to spinner
                         this,
                         android.R.layout.simple_list_item_1,
@@ -91,7 +105,8 @@ public class activity_settings extends Activity {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spServerScenarios.setAdapter(adapter); // associate adapter to spinner
             } else {
-                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                AndroidHelper.displayMessage("Error", this);
+                //Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,13 +131,14 @@ public class activity_settings extends Activity {
             Log.i(TAG, res.getStatus());
             if (res.getStatus()!= "error") {
                 Log.i(TAG, res.getContent());
-               List<String> list=new ArrayList<String>();
-               JSONObject jo = new JSONObject(res.getContent());
+                List<String> list=new ArrayList<String>();
+                JSONObject jo = new JSONObject(res.getContent());
                 JSONArray configFiles = jo.getJSONArray("configFiles");
                 for (int i=0; i<configFiles.length(); i++) {
                     list.add((String) configFiles.get(i));
                 }
-                Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
+                AndroidHelper.displayMessage("zzz", this);
                 ArrayAdapter<String> adapter=new ArrayAdapter<String>(
                         this,
                         android.R.layout.simple_list_item_1,
@@ -131,7 +147,8 @@ public class activity_settings extends Activity {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spServerConfigFiles.setAdapter(adapter);
             } else {
-                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                AndroidHelper.displayMessage("Error", this);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,7 +180,8 @@ public class activity_settings extends Activity {
                 if (AndroidHelper.checkExternalMedia().indexOf("W")>=0) {
                     File root = android.os.Environment.getExternalStorageDirectory();
                     File dir = new File (root.getAbsolutePath() + "/MTFLocal");
-                    dir.mkdirs();
+                    //dir.mkdir("Scenarios");
+                    //dir.mkdirs(scenario");
                     File file = new File(dir, configFile);
                     try {
                         FileOutputStream f = new FileOutputStream(file);
@@ -183,7 +201,8 @@ public class activity_settings extends Activity {
                     }
                 }
             } else {
-                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                AndroidHelper.displayMessage("Error", this);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,7 +210,21 @@ public class activity_settings extends Activity {
     }
 
     public void getLocalConfigFile(View view) {
-        ((activity_main)this.getParent()).configFile = "test";
+        String scenario = this.spLocalScenarios.getSelectedItem().toString();
+        String configFile = this.spLocalConfigFiles.getSelectedItem().toString();
+        tvSettingsLog.append("\n"+configFile);
+        File root = android.os.Environment.getExternalStorageDirectory();
+        File file = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario+"/"+configFile);
+        try {
+            String xml = Utils.convertFile2String(file.getCanonicalPath());
+            activity_main rootActivity = (activity_main)this.getParent();
+            rootActivity.configFile = xml;
+            rootActivity.refreshCaptureTab();
+            //tvSettingsLog.append("\n"+xml);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void activateLocal(View view) {
@@ -199,7 +232,6 @@ public class activity_settings extends Activity {
         View v1 = (View)findViewById(R.id.tab1);
         v1.setVisibility(View.GONE);
         v2.setVisibility(View.VISIBLE);
-        getLocalScenariosList();
     }
 
     public void activateServer(View view) {
@@ -219,7 +251,8 @@ public class activity_settings extends Activity {
                 for (int i = 0; i < scenarios.length; i++) {
                     list.add((String) scenarios[i]);
                 }
-                Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
+                //Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
+                AndroidHelper.displayMessage("zzz", this);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
                         this,
                         android.R.layout.simple_list_item_1,
@@ -244,7 +277,8 @@ public class activity_settings extends Activity {
                 for (int i = 0; i < scenarios.length; i++) {
                     list.add((String) scenarios[i]);
                 }
-                Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
+                //Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
+                AndroidHelper.displayMessage("zzz", this);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
                         this,
                         android.R.layout.simple_list_item_1,
@@ -255,6 +289,6 @@ public class activity_settings extends Activity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }       //Spinner spLocalScenarios = (Spinner)findViewById();
+        }
     }
 }

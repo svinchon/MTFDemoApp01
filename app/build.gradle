@@ -35,9 +35,9 @@ android {
 dependencies {
     compile files('libs/gson-2.4.jar')
     compile files('libs/saxon9pe.jar')
-    compile files('libs/json-20090211.jar')
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile(name: 'captivamobilesdk', ext: 'aar')
+    compile files('libs/org.json-20120521.jar')
 }
 
 repositories {

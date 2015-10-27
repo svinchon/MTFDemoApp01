@@ -2,7 +2,9 @@ package com.diy.helpers.android.v1;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -31,7 +33,7 @@ public class AndroidHelper {
 
     private static int _imageCounter = 0;
 
-    public static String checkExternalMedia(){
+    public static String checkExternalMedia() {
         String rights = "";
         //boolean mExternalStorageAvailable = false;
         //boolean mExternalStorageWriteable = false;
@@ -55,7 +57,9 @@ public class AndroidHelper {
         int ret;
         while (true) {
             ret = inputStream.read(buffer, 0, 1000);
-            if (ret <= 0) { break; }
+            if (ret <= 0) {
+                break;
+            }
             outputStream.write(buffer, 0, ret);
         }
         outputStream.flush();
@@ -64,11 +68,11 @@ public class AndroidHelper {
     }
 
     public static void populateSpinner(Context ctx, Spinner spinner, String[] choices) {
-        List<String> list=new ArrayList<String>();
-        for (int i=0; i<choices.length; i++) {
-            list.add((String)choices[i]);
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < choices.length; i++) {
+            list.add((String) choices[i]);
         }
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>(
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 ctx,
                 android.R.layout.simple_list_item_1,
                 list
@@ -79,8 +83,12 @@ public class AndroidHelper {
 
     //@SuppressLint("SimpleDateFormat")
     public static String getUniqueFilename(String prefix, String extension) {
-        if (prefix == null) { prefix = ""; }
-        if (extension == null) { extension = ""; }
+        if (prefix == null) {
+            prefix = "";
+        }
+        if (extension == null) {
+            extension = "";
+        }
         String timeStamp = new SimpleDateFormat("_yyyyMMdd_HHmmss").format(new Date());
         return prefix + timeStamp + String.valueOf(++_imageCounter) + extension;
     }
@@ -143,9 +151,17 @@ public class AndroidHelper {
             boolean useQuadView = false;
             if (qualitySensor) {
                 HashMap<String, Object> measures = new HashMap<>();
-                if (qualityGlare > 0 && qualityGlare <= 101) {                  measures.put(CaptureImage.MEASURE_GLARE, qualityGlare); }
-                if (qualityPerspective > 0 && qualityPerspective <= 100) {      measures.put(CaptureImage.MEASURE_PERSPECTIVE, qualityPerspective); useQuadView = true; }
-                if (qualityQuadrilateral > 0 && qualityQuadrilateral <= 100) {  measures.put(CaptureImage.MEASURE_QUADRILATERAL, qualityQuadrilateral); useQuadView = true; }
+                if (qualityGlare > 0 && qualityGlare <= 101) {
+                    measures.put(CaptureImage.MEASURE_GLARE, qualityGlare);
+                }
+                if (qualityPerspective > 0 && qualityPerspective <= 100) {
+                    measures.put(CaptureImage.MEASURE_PERSPECTIVE, qualityPerspective);
+                    useQuadView = true;
+                }
+                if (qualityQuadrilateral > 0 && qualityQuadrilateral <= 100) {
+                    measures.put(CaptureImage.MEASURE_QUADRILATERAL, qualityQuadrilateral);
+                    useQuadView = true;
+                }
                 parameters.put(CaptureImage.PICTURE_QUALITY_MEASURES, measures);
             }
 
@@ -173,6 +189,22 @@ public class AndroidHelper {
 
     public static void displayMessage(String str, Context ctx) {
         Toast.makeText(ctx, str, Toast.LENGTH_LONG).show();
+    }
+
+    public static void showAlertDialog(String Title, String msg, Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+       builder.setMessage(msg)
+                .setTitle(Title);
+        builder.setPositiveButton(
+                "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK button
+                    }
+                }
+        );
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 }

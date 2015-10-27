@@ -11,12 +11,12 @@
         android:orientation="vertical"
         android:gravity="bottom">
 
-        <Button
+        <!--Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="getChoices"
             android:id="@+id/button"
-            android:onClick="getUpfrontChoicesLevel1" />
+            android:onClick="getUpfrontChoicesLevel1" /-->
 
         <LinearLayout
             android:orientation="horizontal"

@@ -1,27 +1,18 @@
 package com.diy.cmtdemoapp01;
 
-import android.app.Activity;
 import android.app.TabActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TabHost;
-import android.widget.TabWidget;
 import android.widget.TextView;
 
 public class activity_main extends TabActivity implements TabHost.TabContentFactory, TabHost.OnTabChangeListener {
@@ -188,7 +179,7 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
 //        activity_capture activity = (activity_capture) (getTabHost().getChildAt(0).getContext());
         activity_capture activity = (activity_capture)(getLocalActivityManager().getActivity("capture"));
         if (activity!=null) {
-            activity.refresh();
+            activity.drawUI();
         }
 
     }

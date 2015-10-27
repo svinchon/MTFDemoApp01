@@ -252,7 +252,7 @@ public class activity_settings extends Activity {
                     list.add((String) scenarios[i]);
                 }
                 //Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
-                AndroidHelper.displayMessage("zzz", this);
+                //AndroidHelper.displayMessage("zzz", this);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
                         this,
                         android.R.layout.simple_list_item_1,
@@ -278,7 +278,7 @@ public class activity_settings extends Activity {
                     list.add((String) scenarios[i]);
                 }
                 //Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
-                AndroidHelper.displayMessage("zzz", this);
+                //AndroidHelper.displayMessage("zzz", this);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
                         this,
                         android.R.layout.simple_list_item_1,

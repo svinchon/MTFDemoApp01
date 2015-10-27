@@ -6,11 +6,16 @@ public class Test {
 		// XMLHelper
 		String strInputAsString = "<root><item index='1'>item A</item><item index='2'>item B</item></root>";
 		String strXQUERYAsString = "declare variable $doc external;<xdata>{for $i in $doc/root/item return $i}</xdata>";
-		String xml = XMLHelper.runXQueryAgainstXML_saxon9(strInputAsString, strXQUERYAsString);
-		Utils.log(xml);
-		//Utils.Log(XMLHelper.prettyPrintXML(xml));
-		String str = XMLHelper.getValueFromXML(xml, "/xdata/item[@index='2']");
-		Utils.log(str);
+		try {
+			String xml = XMLHelper.runXQueryAgainstXML_saxon9(strInputAsString, strXQUERYAsString);
+			Utils.log(xml);
+			//Utils.Log(XMLHelper.prettyPrintXML(xml));
+			String str = XMLHelper.getValueFromXML(xml, "/xdata/item[@index='2']");
+			Utils.log(str);
+		} catch (HelperException e) {
+			Utils.log(e.message);
+		}
+
 		// RESTHElper
 		RESTHelper rh = new RESTHelper();
 		RESTHelperCallRequest req;

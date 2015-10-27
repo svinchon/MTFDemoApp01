@@ -74,7 +74,7 @@ public class XMLHelper {
 
 	public static int PRETTY_PRINT_INDENT_FACTOR = 4;
 	
-	public static String runXQueryAgainstXML_saxon9(String xml, String xq) {
+	public static String runXQueryAgainstXML_saxon9(String xml, String xq) throws HelperException {
 		String strResult = null;
 		try {
 			ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
@@ -94,9 +94,12 @@ public class XMLHelper {
 			con.close();
 		} catch (Exception e) {
 			//e.printStackTrace();
-			System.out.println("Input data: "+xml.replaceAll("[\n\t]",""));
-			System.out.println("Input xquery: "+xq.replaceAll("[\n\t]",""));
-			System.out.println("Error message : "+e.getMessage());
+			String message = "";
+			//message += "\n"+"Input data: "+xml.replaceAll("[\n\t]","");
+			message += ""+"Error message : "+e.getMessage();
+			message += "\n"+"Input xquery: "+xq.replaceAll("[\n\t]", "");
+			HelperException he = new HelperException("XMLHelper", "runXQueryAgainstXML_saxon9", message);
+			throw he;
 			//strResult = "ERROR: "+e.getMessage();
 		}
 		return strResult;
@@ -232,3 +235,5 @@ public class XMLHelper {
     }
 	
 }
+
+

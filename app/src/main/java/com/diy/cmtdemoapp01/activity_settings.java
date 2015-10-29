@@ -43,12 +43,12 @@ public class activity_settings extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        tvSettingsLog = (TextView)this.findViewById(R.id.tvSettingsLog);
+        //tvSettingsLog.setText(TAG + " - onCreate called");
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_settings);
-        tvSettingsLog = (TextView)this.findViewById(R.id.tvSettingsLog);
-        tvSettingsLog.setText(TAG + " - onCreate called");
         etServerIP = (EditText)findViewById(R.id.etServerIP);
         spServerScenarios = (Spinner)findViewById(R.id.spScenarios);
         spServerConfigFiles = (Spinner)findViewById(R.id.spConfigFiles);
@@ -65,12 +65,6 @@ public class activity_settings extends Activity {
         spLocalConfigFiles = (Spinner)findViewById(R.id.spLocalConfigFiles);
         rg = (RadioGroup) findViewById(R.id.rg);
         getLocalScenariosList();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        tvSettingsLog.append("\nonStart");
     }
 
     public void getServerScenariosList(View view) {
@@ -212,7 +206,6 @@ public class activity_settings extends Activity {
     public void getLocalConfigFile(View view) {
         String scenario = this.spLocalScenarios.getSelectedItem().toString();
         String configFile = this.spLocalConfigFiles.getSelectedItem().toString();
-        tvSettingsLog.append("\n"+configFile);
         File root = android.os.Environment.getExternalStorageDirectory();
         File file = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario+"/"+configFile);
         try {
@@ -220,7 +213,7 @@ public class activity_settings extends Activity {
             activity_main rootActivity = (activity_main)this.getParent();
             rootActivity.configFile = xml;
             rootActivity.refreshCaptureTab();
-            //tvSettingsLog.append("\n"+xml);
+            AndroidHelper.displayMessage("config file '"+configFile+"' loaded", this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -291,4 +284,11 @@ public class activity_settings extends Activity {
             e.printStackTrace();
         }
     }
+
 }
+
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        tvSettingsLog.append("\nonStart");
+//    }

@@ -14,7 +14,6 @@
             android:id="@+id/appTitleLayout"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:gravity="center"
             android:orientation="horizontal">
 
             <ImageView
@@ -62,7 +61,10 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:background="#fff"
-                android:padding="5dip" />
+                />
+            <!--
+                android:padding="5dip"
+            -->
 
             <TabWidget
                 android:id="@android:id/tabs"
@@ -80,40 +82,89 @@
                     android:id="@+id/states"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="#b23b3b"
                     android:checkedButton="@+id/rbSettings"
                     android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:divider="@drawable/radio_buttons_divider"
+                    android:showDividers="middle"
+                    >
+                    <!--
+                    android:background="#b23b3b"
+                    android:singleLine="true"
+                    -->
 
                     <RadioButton
                         android:id="@+id/rbCamera"
                         android:layout_width="50dip"
-                        android:layout_height="50dip" />
+                        android:checked="false"
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:drawableTop="@drawable/ic_camera_radio"
+                        android:gravity="center|top"
+                        android:textColor="@drawable/radio_buttons_text_color"
+                        android:textSize="12dp"
+                        android:text="Capture Data"
+                         />
 
                     <RadioButton
                         android:id="@+id/rbSearch"
                         android:layout_width="50dip"
-                        android:layout_height="50dip" />
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:drawableTop="@drawable/ic_search_radio"
+                        android:gravity="center|top"
+                        android:textColor="@drawable/radio_buttons_text_color"
+                        android:textSize="12dp"
+                        android:text="Search Data"
+                        />
 
                     <RadioButton
                         android:id="@+id/rbEdit"
                         android:layout_width="50dip"
-                        android:layout_height="50dip" />
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:drawableTop="@drawable/ic_edit_radio"
+                        android:gravity="center|top"
+                        android:textColor="@drawable/radio_buttons_text_color"
+                        android:textSize="12dp"
+                        android:text="Edit\nData"
+                        />
 
                     <RadioButton
                         android:id="@+id/rbAttach"
                         android:layout_width="50dip"
-                        android:layout_height="50dip" />
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:drawableTop="@drawable/ic_attach_radio"
+                        android:gravity="center|top"
+                        android:textColor="@drawable/radio_buttons_text_color"
+                        android:textSize="12dp"
+                        android:text="Attach Files"
+                         />
 
                     <RadioButton
                         android:id="@+id/rbProcess"
                         android:layout_width="50dip"
-                        android:layout_height="50dip" />
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:drawableTop="@drawable/ic_takeoff_radio"
+                        android:gravity="center|top"
+                        android:textColor="@drawable/radio_buttons_text_color"
+                        android:textSize="12dp"
+                        android:text="Process Data"
+                        />
 
                     <RadioButton
                         android:id="@+id/rbSettings"
                         android:layout_width="50dip"
-                        android:layout_height="50dip" />
+                        android:layout_height="wrap_content"
+                        android:button="@null"
+                        android:drawableTop="@drawable/ic_settings_radio"
+                        android:gravity="center|top"
+                        android:textColor="@drawable/radio_buttons_text_color"
+                        android:textSize="12dp"
+                        android:text="Adjust Settings"
+                        />
 
                 </RadioGroup>
 

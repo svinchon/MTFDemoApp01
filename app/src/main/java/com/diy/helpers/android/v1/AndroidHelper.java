@@ -188,7 +188,7 @@ public class AndroidHelper {
     }
 
     public static void displayMessage(String str, Context ctx) {
-        Toast.makeText(ctx, str, Toast.LENGTH_LONG).show();
+        Toast.makeText(ctx, str, Toast.LENGTH_SHORT).show();
     }
 
     public static void showAlertDialog(String Title, String msg, Activity activity) {

@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,6 +27,7 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
     ImageView ti1, ti2;
     LinearLayout tl;
     String configFile;
+    RadioButton rbCamera, rbSearch, rbEdit, rbAttach, rbProcess, rbSettings;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,12 +62,12 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         TabHost.TabSpec ts_proceed = tabHost.newTabSpec("proceed");
         TabHost.TabSpec ts_settings = tabHost.newTabSpec("settings");
 
-        tabHost.addTab(ts_capture.setIndicator("", getResources().getDrawable(R.drawable.ic_camera)).setContent(this));
-        tabHost.addTab(ts_search.setIndicator("", getResources().getDrawable(R.drawable.ic_search)).setContent(this));
-        tabHost.addTab(ts_edit.setIndicator("", getResources().getDrawable(R.drawable.ic_edit)).setContent(this));
-        tabHost.addTab(ts_attach.setIndicator("", getResources().getDrawable(R.drawable.ic_attach)).setContent(this));
-        tabHost.addTab(ts_proceed.setIndicator("", getResources().getDrawable(R.drawable.ic_flight_takeoff)).setContent(this));
-        tabHost.addTab(ts_settings.setIndicator("", getResources().getDrawable(R.drawable.ic_settings)).setContent(this));
+        tabHost.addTab(ts_capture.setIndicator("", r.getDrawable(R.drawable.ic_camera)).setContent(this));
+        tabHost.addTab(ts_search.setIndicator("", r.getDrawable(R.drawable.ic_search)).setContent(this));
+        tabHost.addTab(ts_edit.setIndicator("", r.getDrawable(R.drawable.ic_edit)).setContent(this));
+        tabHost.addTab(ts_attach.setIndicator("", r.getDrawable(R.drawable.ic_attach)).setContent(this));
+        tabHost.addTab(ts_proceed.setIndicator("", r.getDrawable(R.drawable.ic_flight_takeoff)).setContent(this));
+        tabHost.addTab(ts_settings.setIndicator("", r.getDrawable(R.drawable.ic_settings)).setContent(this));
 
         Intent settingsIntent = new Intent(this, activity_settings.class);
         Intent captureIntent = new Intent(this, activity_capture.class);
@@ -89,20 +91,34 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         tabHost.setCurrentTab(5);
 
         RadioButton rbSettings = (RadioButton) findViewById(R.id.rbSettings);
-        rbSettings.setButtonDrawable(R.drawable.ic_settings_radio);
 
-        RadioButton rbCamera = (RadioButton) findViewById(R.id.rbCamera);
-        RadioButton rbSearch = (RadioButton) findViewById(R.id.rbSearch);
-        RadioButton rbEdit = (RadioButton) findViewById(R.id.rbEdit);
-        RadioButton rbAttach = (RadioButton) findViewById(R.id.rbAttach);
-        RadioButton rbProcess = (RadioButton) findViewById(R.id.rbProcess);
+//        RadioButton
+//        RadioButton
+//        RadioButton
+//        RadioButton
+//        RadioButton
+        rbCamera = (RadioButton) findViewById(R.id.rbCamera);
+        rbSearch = (RadioButton) findViewById(R.id.rbSearch);
+        rbEdit = (RadioButton) findViewById(R.id.rbEdit);
+        rbAttach = (RadioButton) findViewById(R.id.rbAttach);
+        rbProcess = (RadioButton) findViewById(R.id.rbProcess);
 
-        rbCamera.setButtonDrawable(R.drawable.ic_camera_radio);
-        rbSearch.setButtonDrawable(R.drawable.ic_search_radio);
-        rbEdit.setButtonDrawable(R.drawable.ic_edit_radio);  //rbEdit.setScaleY(50);
-        rbSearch.setButtonDrawable(R.drawable.ic_search_radio);
-        rbAttach.setButtonDrawable(R.drawable.ic_attach_radio);
-        rbProcess.setButtonDrawable(R.drawable.ic_takeoff_radio);
+        rbCamera.setVisibility(View.GONE);
+        rbSearch.setVisibility(View.GONE);
+        rbEdit.setVisibility(View.GONE);
+        rbAttach.setVisibility(View.GONE);
+        rbProcess.setVisibility(View.GONE);
+
+//        rbSettings.setButtonDrawable(R.drawable.ic_settings_radio);
+//        rbCamera.setButtonDrawable(R.drawable.ic_camera_radio);
+//        rbSearch.setButtonDrawable(R.drawable.ic_search_radio);
+//        rbEdit.setButtonDrawable(R.drawable.ic_edit_radio);  //rbEdit.setScaleY(50);
+//        rbAttach.setButtonDrawable(R.drawable.ic_attach_radio);
+//        rbProcess.setButtonDrawable(R.drawable.ic_takeoff_radio);
+
+//        rbCamera.setText("test");
+//        rbCamera.setGravity(Gravity.CENTER);
+//        rbCamera.setBottom(R.drawable.ic_camera_radio);
 
         int backgroundColor = Color.parseColor("#FFFFFF");
         StateListDrawable sldCamera = new StateListDrawable();
@@ -177,9 +193,11 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
     public void refreshCaptureTab() {
 //        String tabTag = getTabHost().getChildAt(0).getContext()
 //        activity_capture activity = (activity_capture) (getTabHost().getChildAt(0).getContext());
+        rbCamera.setVisibility(View.VISIBLE);
         activity_capture activity = (activity_capture)(getLocalActivityManager().getActivity("capture"));
         if (activity!=null) {
             activity.drawUI();
+
         }
 
     }

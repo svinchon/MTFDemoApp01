@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,7 +25,7 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
     TextView tt;
     ImageView ti1, ti2;
     LinearLayout tl;
-    String configFile;
+    String currentScenario, currentConfigFileName, currentConfigFile;
     RadioButton rbCamera, rbSearch, rbEdit, rbAttach, rbProcess, rbSettings;
 
     @Override
@@ -34,7 +33,7 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
 
         super.onCreate(savedInstanceState);
 
-        configFile = "";
+        currentConfigFile = "";
 
         r = getResources();
         color_background_primary = r.getString(R.string.color_background_primary);
@@ -147,26 +146,26 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, final int checkedId) {
-                switch (checkedId) {
-                    case R.id.rbCamera:
-                        getTabHost().setCurrentTab(0);
-                        break;
-                    case R.id.rbSearch:
-                        getTabHost().setCurrentTab(1);
-                        break;
-                    case R.id.rbEdit:
-                        getTabHost().setCurrentTab(2);
-                        break;
-                    case R.id.rbAttach:
-                        getTabHost().setCurrentTab(3);
-                        break;
-                    case R.id.rbProcess:
-                        getTabHost().setCurrentTab(4);
-                        break;
-                    case R.id.rbSettings:
-                        getTabHost().setCurrentTab(5);
-                        break;
-                }
+            switch (checkedId) {
+                case R.id.rbCamera:
+                    getTabHost().setCurrentTab(0);
+                    break;
+                case R.id.rbSearch:
+                    getTabHost().setCurrentTab(1);
+                    break;
+                case R.id.rbEdit:
+                    getTabHost().setCurrentTab(2);
+                    break;
+                case R.id.rbAttach:
+                    getTabHost().setCurrentTab(3);
+                    break;
+                case R.id.rbProcess:
+                    getTabHost().setCurrentTab(4);
+                    break;
+                case R.id.rbSettings:
+                    getTabHost().setCurrentTab(5);
+                    break;
+            }
             }
         });
     }

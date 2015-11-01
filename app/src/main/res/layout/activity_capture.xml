@@ -86,10 +86,17 @@
             android:id="@+id/btnCaptureData"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             android:onClick="captureData"
             android:text="Capture Data"
             android:visibility="gone"
+            />
+
+        <Button
+            android:id="@+id/btnSimulateOCRFeedbackReturned"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onOCRFeedbackReceived"
+            android:text="Simulate OCR Feedback Received"
             />
 
         <TextView

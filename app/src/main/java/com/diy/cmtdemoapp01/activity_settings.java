@@ -8,11 +8,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.diy.helpers.android.v1.AndroidHelper;
 import com.diy.helpers.v1.RESTHelper;
@@ -170,7 +168,7 @@ public class activity_settings extends Activity {
             if (res.getStatus()!= "error") {
                 //Log.i(TAG, res.getContent());
                 String content = res.getContent();
-                //((activity_main)this.getParent()).configFile = content;
+                //((activity_main)this.getParent()).currentConfigFile = content;
                 if (AndroidHelper.checkExternalMedia().indexOf("W")>=0) {
                     File root = android.os.Environment.getExternalStorageDirectory();
                     File dir = new File (root.getAbsolutePath() + "/MTFLocal");
@@ -205,15 +203,17 @@ public class activity_settings extends Activity {
 
     public void getLocalConfigFile(View view) {
         String scenario = this.spLocalScenarios.getSelectedItem().toString();
-        String configFile = this.spLocalConfigFiles.getSelectedItem().toString();
+        String configFileName = this.spLocalConfigFiles.getSelectedItem().toString();
+        activity_main rootActivity = (activity_main)this.getParent();
         File root = android.os.Environment.getExternalStorageDirectory();
-        File file = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario+"/"+configFile);
+        File file = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario+"/"+configFileName);
         try {
             String xml = Utils.convertFile2String(file.getCanonicalPath());
-            activity_main rootActivity = (activity_main)this.getParent();
-            rootActivity.configFile = xml;
+            rootActivity.currentConfigFile = xml;
+            rootActivity.currentScenario = scenario;
+            rootActivity.currentConfigFileName = configFileName;
             rootActivity.refreshCaptureTab();
-            AndroidHelper.displayMessage("config file '"+configFile+"' loaded", this);
+            AndroidHelper.displayMessage("config file '"+configFileName+"' loaded", this);
         } catch (IOException e) {
             e.printStackTrace();
         }

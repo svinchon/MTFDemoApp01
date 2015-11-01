@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 public class activity_proceed extends Activity {
@@ -25,6 +23,6 @@ public class activity_proceed extends Activity {
     }
 
     public void getFromMain(View view) {
-        tvProceedLog.append("\nxxx"+((activity_main)this.getParent()).configFile+"xxx");
+        tvProceedLog.append("\nxxx"+((activity_main)this.getParent()).currentConfigFile +"xxx");
     }
 }

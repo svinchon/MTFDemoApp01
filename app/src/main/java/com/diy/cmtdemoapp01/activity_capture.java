@@ -25,8 +25,6 @@ import com.diy.helpers.v1.JSONHelper;
 import com.diy.helpers.v1.Utils;
 import com.diy.helpers.v1.XMLHelper;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -45,7 +43,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,14 +56,14 @@ public class activity_capture extends Activity implements PictureCallback {
     private String TAG = this.getClass().getSimpleName();
 
     LinearLayout llImages;
-    TextView tvCaptureLog, tvSpinner1, tvSpinner2;
+    TextView tvSpinner1, tvSpinner2;
     Spinner spSpinner1, spSpinner2;
 
     utils_capture_mask[] masks;
     Map<String, utils_capture_mask> masksMap;
 
     int currentImageCount;
-    String configFile, jsonConfigFile, currentMaskName, filePath;
+    String configFileXML, configFileJSON, currentMaskName, filePath;
     String[] maskNames;
     List<String> currentImages;
 
@@ -73,7 +71,6 @@ public class activity_capture extends Activity implements PictureCallback {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //tvCaptureLog.setText(TAG + " - onCreate called");
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
@@ -162,7 +159,7 @@ public class activity_capture extends Activity implements PictureCallback {
     public void onPictureCanceled(int i) { }
 
     public void getUpfrontChoicesLevel1() {
-        String configFile = ((activity_main)this.getParent()).currentConfigFile;
+        String configFileXML = ((activity_main)this.getParent()).currentConfigFileXML;
         //String xq = "declare variable $doc external;<xdata>{for $i in $doc/root/item return $i}</xdata>";
         try {
             String xq;
@@ -177,7 +174,7 @@ public class activity_capture extends Activity implements PictureCallback {
                     "           ':'" +
                     "       )" +
                     "   )";
-            String r = XMLHelper.runXQueryAgainstXML_saxon9(configFile, xq);
+            String r = XMLHelper.runXQueryAgainstXML_saxon9(configFileXML, xq);
             String[] rr = r.split(";");
             String label1 = rr[0];
             String[] choices1 = rr[1].split(":");
@@ -189,9 +186,9 @@ public class activity_capture extends Activity implements PictureCallback {
     }
 
     public void getUpfrontChoicesLevel2() {
-        configFile = ((activity_main)this.getParent()).currentConfigFile;
+        configFileXML = ((activity_main)this.getParent()).currentConfigFileXML;
         String choice1 = spSpinner1.getSelectedItem().toString();
-        jsonConfigFile = XMLHelper.convertToJSON(configFile);
+        configFileJSON = XMLHelper.convertToJSON(configFileXML);
         try {
             String xq;
             xq =    "declare variable $doc external; " +
@@ -210,7 +207,7 @@ public class activity_capture extends Activity implements PictureCallback {
                     "           ':'" +
                     "       )" +
                     "   )";
-            String r = XMLHelper.runXQueryAgainstXML_saxon9(configFile, xq);
+            String r = XMLHelper.runXQueryAgainstXML_saxon9(configFileXML, xq);
             String[] rr = r.split(";");
             String label1 = rr[0];
             String[] choices2 = rr[1].split(":");
@@ -222,7 +219,7 @@ public class activity_capture extends Activity implements PictureCallback {
             for (int i=0; i<maskNames.length; i++) {
                 int boxesCount = Integer.parseInt(
                         XMLHelper.runXQueryAgainstXML_saxon9(
-                                configFile,
+                                configFileXML,
                                 "declare variable $doc external; " +
                                 "let $c := count($doc/MTFDemoSpecs/Capture/Masks/Mask[Label='" + maskNames[i] + "']/Boxes/Box) " +
                                 "return $c"
@@ -230,14 +227,14 @@ public class activity_capture extends Activity implements PictureCallback {
                 );
                 int ovalsCount = Integer.parseInt(
                         XMLHelper.runXQueryAgainstXML_saxon9(
-                                configFile,
+                                configFileXML,
                                 "declare variable $doc external; " +
                                 "let $c := count($doc/MTFDemoSpecs/Capture/Masks/Mask[Label='" + maskNames[i] + "']/Ovals/Oval) " +
                                 "return $c"
                         )
                 );
                 String maskDef = JSONHelper.runJPath(
-                        jsonConfigFile,
+                        configFileJSON,
                         "/MTFDemoSpecs/Capture/Masks/Mask["+(i+1)+"]"
                 );
                 masks[i] = new utils_capture_mask();
@@ -265,20 +262,18 @@ public class activity_capture extends Activity implements PictureCallback {
                     masks[i].ovals[j].commentPosition = JSONHelper.runJPath(ovalDef, "/CommentPosition");
                     masks[i].ovals[j].center_x_vs_canvas_width_in_percent = Integer.parseInt(JSONHelper.runJPath(ovalDef, "/CenterXVsCanvasWidthPercent"));
                     masks[i].ovals[j].center_y_vs_canvas_height_in_percent = Integer.parseInt(JSONHelper.runJPath(ovalDef, "/CenterYVsCanvasHeightPercent"));
-                    //AndroidHelper.showAlertDialog("JSON", "XvsC:"+masks[i].ovals[j].center_x_vs_canvas_width_in_percent, this);
                 }
                 masksMap.put(maskNames[i], masks[i]);
             }
             tvSpinner2.setText(label1);
             AndroidHelper.populateSpinner(this, spSpinner2, choices2);
         } catch (HelperException e) {
-            AndroidHelper.displayMessage(e.message, this);
+            AndroidHelper.showAlertDialog("Error", e.getMessage(), this);
         }
     }
 
     public void drawUI() {
         this.setContentView(R.layout.activity_capture);
-        tvCaptureLog = (TextView)this.findViewById(R.id.tvCaptureLog);
         spSpinner1 = (Spinner)this.findViewById(R.id.spSpinner1);
         spSpinner2 = (Spinner)this.findViewById(R.id.spSpinner2);
         tvSpinner1 = (TextView)this.findViewById(R.id.tvSpinner1);
@@ -322,8 +317,6 @@ public class activity_capture extends Activity implements PictureCallback {
     }
 
     public void captureData(View view) {
-        //JSONHelper.runJPath(jsonConfigFile, "")
-        filePath = currentImages.get(0);
         UploadFileToServer ufts = new UploadFileToServer();
         ufts.execute();
     }
@@ -373,18 +366,19 @@ public class activity_capture extends Activity implements PictureCallback {
                         )
                 );
             }
+            mb.addFormDataPart("Scenario", rootActivity.currentScenario);
             RequestBody requestBody =  mb.build();
             Request request = new Request.Builder()
-                .url("http://192.168.1.183:18080/MTFServer01/TestRestService")
+                .url("http://" + rootActivity.currentServerIP + ":18080/MTFServer01/rest/MTFServer01REST/uploadAndProcessImages")
                         //<editor-fold desc="add code for authentication here">
                         //                .addHeader("X-Auth-Token", "user")
                         //</editor-fold>
-                    .post(requestBody)
+                .post(requestBody)
                 .build();
             OkHttpClient client = new OkHttpClient();
             try {
                 Response response = client.newCall(request).execute();
-                responseString = response.toString();
+                responseString = response.body().string();
             } catch (IOException e) {
                 e.printStackTrace();
                 responseString = "ERROR";
@@ -394,14 +388,50 @@ public class activity_capture extends Activity implements PictureCallback {
 
         @Override
         protected void onPostExecute(String result) {
-            Log.e(TAG, "Response from server: " + result);
-            //showAlert(result);
             super.onPostExecute(result);
+            showAlertDialog(result);
+            rootActivity.currentOCRResult = result;
+            UpdateCurrentDataXML();
+
         }
 
     }
 
+    private void UpdateCurrentDataXML() {
+        String currentDataXML = rootActivity.currentDataXML;
+        String currentOCRResult = rootActivity.currentOCRResult;
+        String[] OCRResultFieldNames = XMLHelper.getValuesFromXML(currentOCRResult, "/root/field/name");
+        String[] OCRResultFieldValues = XMLHelper.getValuesFromXML(currentOCRResult, "/root/field/value");
+        Map<String, String> fieldsMap = new LinkedHashMap<>();
+        for (int i=0;i<OCRResultFieldNames.length;i++) {
+            fieldsMap.put(OCRResultFieldNames[i], OCRResultFieldValues[i]);
+        }
+        HashMap<String, utils_edit_config_field> editingHashMap = rootActivity.currentEditingHashMap;
+        for (Map.Entry<String, utils_edit_config_field> entry : editingHashMap.entrySet()) {
+            String xPath =  "/"+entry.getValue().fieldXPath;
+            String fieldName = entry.getValue().fieldName;
+            if (fieldsMap.get(fieldName)!=null) currentDataXML = XMLHelper.updateNodeInXMLString(currentDataXML, xPath, fieldsMap.get(fieldName));
+        }
+        rootActivity.currentDataXML = currentDataXML;
+
+    }
+
     public void onOCRFeedbackReceived(View view) {
+        onOCRFeedbackReceivedJSON();
+        onOCRFeedbackReceivedXML();
+    }
+
+    public void onOCRFeedbackReceivedXML() {
+        File root = android.os.Environment.getExternalStorageDirectory();
+        String fullPath = root.getAbsolutePath()
+                + "/MTFLocal/Scenarios/"
+                + rootActivity.currentScenario
+                + "/Data/"
+                + "S1a.xml";
+        String data = Utils.convertFile2String(fullPath);
+    }
+
+    public void onOCRFeedbackReceivedJSON() {
         File root = android.os.Environment.getExternalStorageDirectory();
         String fullPath = root.getAbsolutePath()
                 + "/MTFLocal/Scenarios/"
@@ -447,9 +477,9 @@ public class activity_capture extends Activity implements PictureCallback {
 
     }
 
-//    public void displayMessage(String str) {
-//
-//    }
+    public void showAlertDialog(String str) {
+        AndroidHelper.showAlertDialog("showAlertDialog", str, this);
+    }
 
 }
 

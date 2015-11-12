@@ -9,8 +9,6 @@ package com.diy.helpers.v1;
 
 //import javax.ws.rs.core.MediaType;
 
-import android.util.Log;
-
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -42,9 +40,7 @@ public class RESTHelper {
                 String contentType = req.getContentType();
                 String content = req.getContent();
                 String requestBodyContentType = "text/plain";
-                if ("json".equals(contentType)) {
-                    requestBodyContentType = "application/json; charset=utf-8";
-                }
+                if ("json".equals(contentType)) { requestBodyContentType = "application/json; charset=utf-8"; }
                 OkHttpClient client = new OkHttpClient();
                 Request request;
                 if (req.getRequestType().equals("POST")) {
@@ -86,8 +82,7 @@ public class RESTHelper {
                 }
             }
         } catch (IOException e) {
-            //e.printStackTrace();
-            Log.e(TAG, "Error during http call: "+e.getMessage());
+            this.resp.setErrorMessage(e.getMessage());
             this.resp.setStatus("error");
         }
 

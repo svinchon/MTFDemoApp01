@@ -23,6 +23,6 @@ public class activity_proceed extends Activity {
     }
 
     public void getFromMain(View view) {
-        tvProceedLog.append("\nxxx"+((activity_main)this.getParent()).currentConfigFile +"xxx");
+        tvProceedLog.append("\nxxx"+((activity_main)this.getParent()).currentConfigFileXML +"xxx");
     }
 }

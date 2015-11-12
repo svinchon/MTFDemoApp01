@@ -41,25 +41,33 @@ public class Utils {
 	}
 	
 
-	public static void convertByte2File(byte[] bData, String strFileName) throws Exception {
-		
-		File outFile = new File(strFileName);
-		if (!outFile.getParentFile().exists()) {
-			outFile.getParentFile().mkdirs();
-			System.out.println("xDocxa - Directory Created");
+	public static void convertByte2File(byte[] bData, String strFileName) {
+		try {
+			File outFile = new File(strFileName);
+			if (!outFile.getParentFile().exists()) {
+                outFile.getParentFile().mkdirs();
+                System.out.println("Directory Created");
+            }
+			FileOutputStream fos = new FileOutputStream(outFile);
+			fos.write(bData);
+			System.out.println("File written");
+			fos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		FileOutputStream fos = new FileOutputStream(outFile);
-		fos.write(bData);
-		System.out.println("xDocxa - File written");
-		fos.close();
 	}
 
-	public static byte[] convertFile2Byte(String strFileName) throws Exception {
-		File inFile = new File(strFileName);
-		FileInputStream fis = new FileInputStream(inFile);
-		byte[] b = new byte[fis.available()];
-		fis.read(b);
-		fis.close();
+	public static byte[] convertFile2Byte(String strFileName) {
+		byte[] b = null;
+		try {
+			File inFile = new File(strFileName);
+			FileInputStream fis = new FileInputStream(inFile);
+			b = new byte[fis.available()];
+			fis.read(b);
+			fis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return b;
 	}
 	

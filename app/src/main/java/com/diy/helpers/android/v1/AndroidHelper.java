@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -188,12 +190,13 @@ public class AndroidHelper {
     }
 
     public static void displayMessage(String str, Context ctx) {
-        Toast.makeText(ctx, str, Toast.LENGTH_SHORT).show();
+        Toast.makeText(ctx, str, Toast.LENGTH_LONG).show();
+        Log.i("MESSAGE", str);
     }
 
     public static void showAlertDialog(String Title, String msg, Activity activity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-       builder.setMessage(msg)
+        builder.setMessage(msg)
                 .setTitle(Title);
         builder.setPositiveButton(
                 "OK",

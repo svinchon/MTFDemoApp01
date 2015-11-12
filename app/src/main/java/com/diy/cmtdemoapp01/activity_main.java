@@ -15,25 +15,52 @@ import android.widget.RadioGroup;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.diy.helpers.android.v1.AndroidHelper;
+import com.diy.helpers.v1.Utils;
+import com.diy.helpers.v1.XMLHelper;
+
+import java.io.File;
+import java.util.HashMap;
+
 public class activity_main extends TabActivity implements TabHost.TabContentFactory, TabHost.OnTabChangeListener {
 
-    TabHost tabHost;
     Resources r;
+    TabHost tabHost;
     String color_background_primary;
     String color_background_secondary;
     String color_text_primary;
     TextView tt;
     ImageView ti1, ti2;
     LinearLayout tl;
-    String currentScenario, currentConfigFileName, currentConfigFile;
+    String  rootPath,
+            currentServerIP,
+            currentScenario,
+            currentConfigFileName,
+            currentConfigFileXML,
+            currentDataXML,
+            currentOCRResult,
+            currentPreferencesXML;
     RadioButton rbCamera, rbSearch, rbEdit, rbAttach, rbProcess, rbSettings;
+    HashMap<String, utils_edit_config_field> currentEditingHashMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        currentConfigFile = "";
+        rootPath = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/MTFLocal";
+
+        String preferencePath = rootPath + "/Preferences.xml";
+        File preferencesFile =  new File(preferencePath);
+        if (!preferencesFile.exists()) {
+            String defaultPreferencesXML = "<Preferences><ServerIP/></Preferences>";
+            currentPreferencesXML = defaultPreferencesXML;
+            Utils.convertByte2File(currentPreferencesXML.getBytes(), preferencePath);
+        } else {
+            currentPreferencesXML = Utils.convertFile2String(preferencePath);
+        }
+
+        currentConfigFileXML = "";
 
         r = getResources();
         color_background_primary = r.getString(R.string.color_background_primary);
@@ -91,11 +118,6 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
 
         RadioButton rbSettings = (RadioButton) findViewById(R.id.rbSettings);
 
-//        RadioButton
-//        RadioButton
-//        RadioButton
-//        RadioButton
-//        RadioButton
         rbCamera = (RadioButton) findViewById(R.id.rbCamera);
         rbSearch = (RadioButton) findViewById(R.id.rbSearch);
         rbEdit = (RadioButton) findViewById(R.id.rbEdit);
@@ -107,17 +129,6 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         rbEdit.setVisibility(View.GONE);
         rbAttach.setVisibility(View.GONE);
         rbProcess.setVisibility(View.GONE);
-
-//        rbSettings.setButtonDrawable(R.drawable.ic_settings_radio);
-//        rbCamera.setButtonDrawable(R.drawable.ic_camera_radio);
-//        rbSearch.setButtonDrawable(R.drawable.ic_search_radio);
-//        rbEdit.setButtonDrawable(R.drawable.ic_edit_radio);  //rbEdit.setScaleY(50);
-//        rbAttach.setButtonDrawable(R.drawable.ic_attach_radio);
-//        rbProcess.setButtonDrawable(R.drawable.ic_takeoff_radio);
-
-//        rbCamera.setText("test");
-//        rbCamera.setGravity(Gravity.CENTER);
-//        rbCamera.setBottom(R.drawable.ic_camera_radio);
 
         int backgroundColor = Color.parseColor("#FFFFFF");
         StateListDrawable sldCamera = new StateListDrawable();
@@ -190,15 +201,24 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
     }
 
     public void refreshCaptureTab() {
-//        String tabTag = getTabHost().getChildAt(0).getContext()
-//        activity_capture activity = (activity_capture) (getTabHost().getChildAt(0).getContext());
         rbCamera.setVisibility(View.VISIBLE);
         activity_capture activity = (activity_capture)(getLocalActivityManager().getActivity("capture"));
         if (activity!=null) {
             activity.drawUI();
-
         }
+    }
 
+    public void refreshEditTab() {
+        rbEdit.setVisibility(View.VISIBLE);
+        activity_view_edit_data activity = (activity_view_edit_data)(getLocalActivityManager().getActivity("edit"));
+        if (activity!=null) {
+            activity.drawUI();
+        }
+    }
+
+    public void updatePreferencesAndSave(String item, String value) {
+        currentPreferencesXML = XMLHelper.updateNodeInXMLString(currentPreferencesXML, "/Preferences/" + item, value);
+        Utils.convertByte2File(currentPreferencesXML.getBytes(), rootPath + "/Preferences.xml");
     }
 
 //        tabHost.addTab(

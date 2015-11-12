@@ -7,6 +7,7 @@
     android:padding="10dp"
     >
 
+    <!-- choose between server and local -->
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -49,77 +50,18 @@
 
     </LinearLayout>
 
+    <!-- server tab -->
     <LinearLayout
-        android:id="@+id/tab2"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="visible"
-        >
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="fill_parent"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Scenario"
-                android:id="@+id/textView5"
-                android:gravity="center_vertical" />
-
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/spLocalScenarios"
-                android:gravity="center_vertical"
-
-                /><!--android:onClick="getLocalConfigFilesList"-->
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:touchscreenBlocksFocus="false">
-
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="fill_parent"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Config File"
-                android:id="@+id/textView4"
-                android:gravity="center_vertical" />
-
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/spLocalConfigFiles" />
-        </LinearLayout>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="load Config From Mobile"
-            android:id="@+id/btnLoadLocalConfig"
-            android:nestedScrollingEnabled="true"
-            android:textAllCaps="false"
-            android:onClick="getLocalConfigFile" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/tab1"
+        android:id="@+id/serverTab"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:clickable="false"
         android:orientation="vertical"
         android:showDividers="beginning|middle|end"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:touchscreenBlocksFocus="true">
 
+        <!-- server ip -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -131,7 +73,7 @@
                 android:layout_height="fill_parent"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Server"
-                android:id="@+id/textView"
+                android:id="@+id/tvServerIP"
                 android:gravity="center_vertical" />
 
             <EditText
@@ -143,16 +85,18 @@
                 />
         </LinearLayout>
 
+        <!-- get server scenario list -->
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="get Scenarios List"
-            android:id="@+id/btnGetScenariosList"
+            android:id="@+id/btnGetServerScenariosList"
             android:nestedScrollingEnabled="false"
             android:textAllCaps="false"
             android:onClick="getServerScenariosList"
             />
 
+        <!-- server scenarios -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -163,26 +107,28 @@
                 android:layout_height="fill_parent"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Scenario"
-                android:id="@+id/textView2"
+                android:id="@+id/tvServerScenarios"
                 android:gravity="center_vertical" />
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/spScenarios"
+                android:id="@+id/spServerScenarios"
                 android:gravity="center_vertical" />
         </LinearLayout>
 
-        <Button
+        <!-- get server config files list -->
+        <!--Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="get Config Files List"
-            android:id="@+id/btnGetConfigFiles"
+            android:id="@+id/btnGetServerConfigFiles"
             android:nestedScrollingEnabled="true"
             android:textAllCaps="false"
-            android:onClick="getConfigFilesList"
-            />
+            android:onClick="getServerConfigFilesList"
+            /-->
 
+        <!-- tv server config files -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -193,30 +139,101 @@
                 android:layout_height="fill_parent"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Config File"
-                android:id="@+id/textView3"
+                android:id="@+id/tvServerConfigFiles"
                 android:gravity="center_vertical" />
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/spConfigFiles" />
+                android:id="@+id/spServerConfigFiles" />
         </LinearLayout>
 
+        <!-- get server config file -->
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="load Config From Server"
-            android:id="@+id/btnLoadConfig"
+            android:text="get Server Config"
+            android:id="@+id/btnGetServerConfig"
             android:nestedScrollingEnabled="true"
             android:textAllCaps="false"
-            android:onClick="getConfigFile"
+            android:onClick="getServerConfigFile"
             />
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
+    <!-- local tab -->
+    <LinearLayout
+        android:id="@+id/localTab"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tvSettingsLog" />
+        android:orientation="vertical"
+        android:visibility="visible"
+        >
+
+        <!-- local scenarios -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Scenario"
+                android:id="@+id/textView5"
+                android:gravity="center_vertical"
+                />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spLocalScenarios"
+                android:gravity="center_vertical"
+                />
+
+            <!--android:onClick="getLocalConfigFilesList"-->
+
+        </LinearLayout>
+
+        <!-- local config files -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:touchscreenBlocksFocus="false"
+            >
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Config File"
+                android:id="@+id/tvLocalConfigFiles"
+                android:gravity="center_vertical"
+                />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spLocalConfigFiles"
+                />
+
+        </LinearLayout>
+
+        <!-- get local config file -->
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="get Local Config"
+            android:id="@+id/btnLoadLocalConfig"
+            android:nestedScrollingEnabled="true"
+            android:textAllCaps="false"
+            android:onClick="getLocalConfigFile"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -13,10 +13,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.diy.helpers.android.v1.AndroidHelper;
+import com.diy.helpers.v1.HelperException;
 import com.diy.helpers.v1.RESTHelper;
 import com.diy.helpers.v1.RESTHelperCallRequest;
 import com.diy.helpers.v1.RESTHelperCallResult;
 import com.diy.helpers.v1.Utils;
+import com.diy.helpers.v1.XMLHelper;
+import com.diy.helpers.v1.XPath2XmlCreator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,7 +30,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class activity_settings extends Activity {
 
@@ -38,18 +44,29 @@ public class activity_settings extends Activity {
     TextView tvSettingsLog;
     EditText etServerIP;
     Spinner spServerScenarios, spServerConfigFiles, spLocalScenarios, spLocalConfigFiles;
+    activity_main rootActivity;
+    int portNumber = 80;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        tvSettingsLog = (TextView)this.findViewById(R.id.tvSettingsLog);
-        //tvSettingsLog.setText(TAG + " - onCreate called");
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
+        rootActivity = (activity_main)this.getParent();
         this.setContentView(R.layout.activity_settings);
         etServerIP = (EditText)findViewById(R.id.etServerIP);
-        spServerScenarios = (Spinner)findViewById(R.id.spScenarios);
-        spServerConfigFiles = (Spinner)findViewById(R.id.spConfigFiles);
+        etServerIP.setText(XMLHelper.getValueFromXML(rootActivity.currentPreferencesXML, "/Preferences/ServerIP"));
+        spServerScenarios = (Spinner)findViewById(R.id.spServerScenarios);
+        spServerScenarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                //getServerConfigFilesList();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        spServerConfigFiles = (Spinner)findViewById(R.id.spServerConfigFiles);
         spLocalScenarios = (Spinner)findViewById(R.id.spLocalScenarios);
         spLocalScenarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -65,173 +82,120 @@ public class activity_settings extends Activity {
         getLocalScenariosList();
     }
 
-    public void getServerScenariosList(View view) {
-        Log.i(TAG, "button was pressed"); // write info message to log
-        try {
-            String ip = etServerIP.getText().toString(); // get server ip from text field
-            String url ="http://"+ip+":18080/MTFServer01/rest/MTFServer01REST/getScenariosList";
-            Log.i(TAG, "url: "+url); // write info message to log
-            RESTHelperCallRequest req = new RESTHelperCallRequest(); // prepare request
-            req.setURL(url);
-            req.setRequestType("GET");
-            RESTHelper rh = new RESTHelper(); // prepare helper
-            rh.setReq(req);
-            rh.execute(); // run request
-            RESTHelperCallResult res = rh.getRESTCallResult(); // process result
-            Log.i(TAG, res.getStatus()); // write info message to log
-            if (res.getStatus()!= "error") {
-                Log.i(TAG, res.getContent()); // write info message to log
-                List<String> list=new ArrayList<String>(); // underlying list to feed spinner
-                JSONObject jo = new JSONObject(res.getContent());
-                JSONArray scenarios = jo.getJSONArray("scenarios");
-                for (int i=0; i<scenarios.length(); i++) {
-                    list.add((String) scenarios.get(i));
-                }
-                AndroidHelper.displayMessage("zzz", this);
-                //Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show(); // display message
-                ArrayAdapter<String> adapter=new ArrayAdapter<String>( // adapter to link string array or array list to spinner
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        list
-                );
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spServerScenarios.setAdapter(adapter); // associate adapter to spinner
-            } else {
-                AndroidHelper.displayMessage("Error", this);
-                //Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void getConfigFilesList(View view) {
-        Log.i(TAG, "button was pressed");
-        try {
-            String ip = etServerIP.getText().toString();
-            String scenario = spServerScenarios.getSelectedItem().toString();
-            String url ="http://"+ip+":18080/MTFServer01/rest/MTFServer01REST/getConfigFilesList";
-            Log.i(TAG, "url: "+url);
-            RESTHelperCallRequest req = new RESTHelperCallRequest();
-            req.setURL(url);
-            req.setRequestType("GET");
-            req.addParameter("Scenario", scenario);
-            RESTHelper rh = new RESTHelper();
-            rh.setReq(req);
-            rh.execute();
-            RESTHelperCallResult res = rh.getRESTCallResult();
-            Log.i(TAG, res.getStatus());
-            if (res.getStatus()!= "error") {
-                Log.i(TAG, res.getContent());
-                List<String> list=new ArrayList<String>();
-                JSONObject jo = new JSONObject(res.getContent());
-                JSONArray configFiles = jo.getJSONArray("configFiles");
-                for (int i=0; i<configFiles.length(); i++) {
-                    list.add((String) configFiles.get(i));
-                }
-                //Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
-                AndroidHelper.displayMessage("zzz", this);
-                ArrayAdapter<String> adapter=new ArrayAdapter<String>(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        list
-                );
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spServerConfigFiles.setAdapter(adapter);
-            } else {
-                //Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-                AndroidHelper.displayMessage("Error", this);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void getConfigFile(View view) {
-        Log.i(TAG, "button was pressed");
-        try {
-            String ip = etServerIP.getText().toString();
-            String scenario = spServerScenarios.getSelectedItem().toString();
-            String configFile = spServerConfigFiles.getSelectedItem().toString();
-            String url ="http://"+ip+":18080/MTFServer01/rest/MTFServer01REST/getConfigFile";
-            Log.i(TAG, "url: "+url);
-            RESTHelperCallRequest req = new RESTHelperCallRequest();
-            req.setURL(url);
-            req.setRequestType("GET");
-            req.addParameter("Scenario", scenario);
-            req.addParameter("ConfigFile", configFile);
-            RESTHelper rh = new RESTHelper();
-            rh.setReq(req);
-            rh.execute();
-            RESTHelperCallResult res = rh.getRESTCallResult();
-            Log.i(TAG, res.getStatus());
-            if (res.getStatus()!= "error") {
-                //Log.i(TAG, res.getContent());
-                String content = res.getContent();
-                //((activity_main)this.getParent()).currentConfigFile = content;
-                if (AndroidHelper.checkExternalMedia().indexOf("W")>=0) {
-                    File root = android.os.Environment.getExternalStorageDirectory();
-                    File dir = new File (root.getAbsolutePath() + "/MTFLocal");
-                    //dir.mkdir("Scenarios");
-                    //dir.mkdirs(scenario");
-                    File file = new File(dir, configFile);
-                    try {
-                        FileOutputStream f = new FileOutputStream(file);
-                        PrintWriter pw = new PrintWriter(f);
-                        pw.println(content);
-                        pw.flush();
-                        pw.close();
-                        f.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                        Log.i(TAG, "" +
-                                "******* File not found. Did you" +
-                                " add a WRITE_EXTERNAL_STORAGE permission" +
-                                " to the manifest?");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                //Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-                AndroidHelper.displayMessage("Error", this);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void getLocalConfigFile(View view) {
-        String scenario = this.spLocalScenarios.getSelectedItem().toString();
-        String configFileName = this.spLocalConfigFiles.getSelectedItem().toString();
-        activity_main rootActivity = (activity_main)this.getParent();
-        File root = android.os.Environment.getExternalStorageDirectory();
-        File file = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario+"/"+configFileName);
-        try {
-            String xml = Utils.convertFile2String(file.getCanonicalPath());
-            rootActivity.currentConfigFile = xml;
-            rootActivity.currentScenario = scenario;
-            rootActivity.currentConfigFileName = configFileName;
-            rootActivity.refreshCaptureTab();
-            AndroidHelper.displayMessage("config file '"+configFileName+"' loaded", this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
+    // show appropriate tab base on radio button
     public void activateLocal(View view) {
-        View v2 = (View)findViewById(R.id.tab2);
-        View v1 = (View)findViewById(R.id.tab1);
+        View v2 = (View)findViewById(R.id.localTab);
+        View v1 = (View)findViewById(R.id.serverTab);
         v1.setVisibility(View.GONE);
         v2.setVisibility(View.VISIBLE);
     }
-
     public void activateServer(View view) {
-        View v2 = (View)findViewById(R.id.tab2);
-        View v1 = (View)findViewById(R.id.tab1);
+        View v2 = (View)findViewById(R.id.localTab);
+        View v1 = (View)findViewById(R.id.serverTab);
         v1.setVisibility(View.VISIBLE);
         v2.setVisibility(View.GONE);
+    }
+
+    public void getServerScenariosList(View view) {
+        String ip = etServerIP.getText().toString(); // get server ip from text field
+        rootActivity.currentServerIP = ip;
+        rootActivity.updatePreferencesAndSave("ServerIP", ip);
+        //getServerScenariosList();
+    }
+
+    public void getServerScenariosList() {
+        try {
+            String url ="http://"+rootActivity.currentServerIP+":"+portNumber+"/MTFServer01/rest/MTFServer01REST/getScenariosList";
+            RESTHelperCallRequest req = new RESTHelperCallRequest(); // prepare request
+            req.setURL(url); req.setRequestType("GET");
+            RESTHelper rh = new RESTHelper(); // prepare helper
+            rh.setReq(req); rh.execute(); // run request
+            RESTHelperCallResult res = rh.getRESTCallResult(); // process result
+            if (res.getStatus()!= "error") {
+                List<String> list=new ArrayList<String>(); // underlying list to feed spinner
+                JSONObject jo = new JSONObject(res.getContent());
+                JSONArray scenarios = jo.getJSONArray("scenarios");
+                for (int i=0; i<scenarios.length(); i++) { list.add((String) scenarios.get(i)); }
+                String[] array = list.toArray(new String[list.size()]);
+                AndroidHelper.populateSpinner(this, spServerScenarios, array);
+            } else {
+                AndroidHelper.showAlertDialog("Error", res.getErrorMessage(), this);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getServerConfigFilesList() {
+        try {
+            String ip = etServerIP.getText().toString();
+            String scenario = spServerScenarios.getSelectedItem().toString();
+            rootActivity.currentScenario = scenario;
+            String url ="http://"+ip+":"+portNumber+"/MTFServer01/rest/MTFServer01REST/getConfigFilesList";
+            RESTHelperCallRequest req = new RESTHelperCallRequest();
+            req.setURL(url); req.setRequestType("GET"); req.addParameter("Scenario", scenario);
+            RESTHelper rh = new RESTHelper();
+            rh.setReq(req); rh.execute();
+            RESTHelperCallResult res = rh.getRESTCallResult();
+            if (res.getStatus()!= "error") {
+                List<String> list=new ArrayList<String>();
+                JSONObject jo = new JSONObject(res.getContent());
+                JSONArray configFiles = jo.getJSONArray("configFiles");
+                for (int i=0; i<configFiles.length(); i++) { list.add((String) configFiles.get(i)); }
+                String[] array = list.toArray(new String[list.size()]);
+                AndroidHelper.populateSpinner(this, spServerConfigFiles, array);
+            } else {
+                AndroidHelper.showAlertDialog("Error", "hhh"+res.getErrorMessage(), this);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // TODO not finished
+    public void getServerConfigFile(View view) {
+        try {
+            String ip = etServerIP.getText().toString();
+            String scenario = spServerScenarios.getSelectedItem().toString();
+            String configFileName = spServerConfigFiles.getSelectedItem().toString();
+            String url ="http://"+ip+":"+portNumber+"/MTFServer01/rest/MTFServer01REST/getConfigFile";
+            RESTHelperCallRequest req = new RESTHelperCallRequest();
+            req.setURL(url); req.setRequestType("GET"); req.addParameter("Scenario", scenario); req.addParameter("ConfigFile", configFileName);
+            RESTHelper rh = new RESTHelper();
+            rh.setReq(req); rh.execute();
+            RESTHelperCallResult res = rh.getRESTCallResult();
+            if (res.getStatus()!= "error") {
+                String configFileXML = res.getContent();
+                rootActivity.currentConfigFileXML = configFileXML;
+                rootActivity.currentScenario = scenario;
+                rootActivity.currentConfigFileName = configFileName;
+                rootActivity.refreshCaptureTab();
+                AndroidHelper.displayMessage("config file '" + configFileName + "' downloaded, loaded, & saved", this);
+                createEditingHashMaps();
+                createSampleDataXML();
+                if (AndroidHelper.checkExternalMedia().indexOf("W")>=0) {
+                    File root = android.os.Environment.getExternalStorageDirectory();
+                    File dir = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario);
+                    if (!dir.exists()) dir.mkdirs();
+                    File file = new File(dir, configFileName);
+                    try {
+                        FileOutputStream f = new FileOutputStream(file);
+                        f.write(configFileXML.getBytes());
+                        f.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        AndroidHelper.showAlertDialog("ERROR", e.getMessage(), this);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        AndroidHelper.showAlertDialog("ERROR", e.getMessage(), this);
+                    }
+                }
+            } else {
+                AndroidHelper.showAlertDialog("ERROR", "erreur", this);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void getLocalScenariosList() {
@@ -241,22 +205,13 @@ public class activity_settings extends Activity {
                 File root = android.os.Environment.getExternalStorageDirectory();
                 File dir = new File(root.getAbsolutePath() + "/MTFLocal/Scenarios");
                 String[] scenarios = dir.list();
-                for (int i = 0; i < scenarios.length; i++) {
-                    list.add((String) scenarios[i]);
-                }
-                //Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
-                //AndroidHelper.displayMessage("zzz", this);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        list
-                );
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spLocalScenarios.setAdapter(adapter); // associate adapter to spinner
+                for (int i = 0; i < scenarios.length; i++) { list.add((String) scenarios[i]); }
+                String[] array = list.toArray(new String[list.size()]);
+                AndroidHelper.populateSpinner(this, spLocalScenarios, array);
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }       //Spinner spLocalScenarios = (Spinner)findViewById();
+        }
     }
 
     public void getLocalConfigFilesList() {
@@ -267,25 +222,117 @@ public class activity_settings extends Activity {
                 File root = android.os.Environment.getExternalStorageDirectory();
                 File dir = new File(root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario);
                 String[] scenarios = dir.list();
-                for (int i = 0; i < scenarios.length; i++) {
-                    list.add((String) scenarios[i]);
-                }
-                //Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show(); // display message
-                //AndroidHelper.displayMessage("zzz", this);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>( // adapter to link string array or array list to spinner
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        list
-                );
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spLocalConfigFiles.setAdapter(adapter); // associate adapter to spinner
+                for (int i = 0; i < scenarios.length; i++) { list.add((String) scenarios[i]); }
+                String[] array = list.toArray(new String[list.size()]);
+                AndroidHelper.populateSpinner(this, spLocalConfigFiles, array);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public void getLocalConfigFile(View view) {
+        String scenario = this.spLocalScenarios.getSelectedItem().toString();
+        String configFileName = this.spLocalConfigFiles.getSelectedItem().toString();
+        File root = android.os.Environment.getExternalStorageDirectory();
+        File file = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario+"/"+configFileName);
+        try {
+            String configFileXML = Utils.convertFile2String(file.getCanonicalPath());
+            rootActivity.currentConfigFileXML = configFileXML;
+            rootActivity.currentScenario = scenario;
+            rootActivity.currentConfigFileName = configFileName;
+            rootActivity.refreshCaptureTab();
+            AndroidHelper.displayMessage("config file '" + configFileName + "' loaded", this);
+            createEditingHashMaps();
+            createSampleDataXML();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createEditingHashMaps() {
+        String configFileXML = rootActivity.currentConfigFileXML;
+        String currentScenario = rootActivity.currentScenario;
+        String[] fieldIds = XMLHelper.getValuesFromXML(configFileXML, "/MTFDemoSpecs/Edit/Field/FieldId");
+        String[] fieldNames = XMLHelper.getValuesFromXML(configFileXML, "/MTFDemoSpecs/Edit/Field/FieldLabel");
+        String[] fieldTypes = XMLHelper.getValuesFromXML(configFileXML, "/MTFDemoSpecs/Edit/Field/FieldType");
+        String[] fieldXPaths = XMLHelper.getValuesFromXML(configFileXML, "/MTFDemoSpecs/Edit/Field/FieldXPath");
+        String[] fieldValidValuess = XMLHelper.getValuesFromXML(configFileXML, "/MTFDemoSpecs/Edit/Field/FieldValidValues");
+        String[] fieldDefaultValues = XMLHelper.getValuesFromXML(configFileXML, "/MTFDemoSpecs/Edit/Field/FieldDefaultValue");
+        HashMap<String, utils_edit_config_field> editingHashMap = new LinkedHashMap<>();
+            for (int i=0; i < fieldNames.length; i++) {
+                utils_edit_config_field f = new utils_edit_config_field();
+                f.fieldId = fieldIds[i];
+                f.fieldName = fieldNames[i];
+                f.fieldType = fieldTypes[i];
+                f.fieldXPath = fieldXPaths[i];
+                f.fieldValidValues = fieldValidValuess[i];
+                f.fieldDefaultValue = fieldDefaultValues[i];
+                editingHashMap.put(fieldNames[i], f);
+            }
+        rootActivity.currentEditingHashMap = editingHashMap;
+    }
+
+    public void createSampleDataXML() {
+        String currentScenario = rootActivity.currentScenario;
+        HashMap<String, utils_edit_config_field> editingHashMap = rootActivity.currentEditingHashMap;
+        if (AndroidHelper.checkExternalMedia().contains("W")) {
+            File root = android.os.Environment.getExternalStorageDirectory();
+            File dataFolder = new File(root.getAbsolutePath() + "/MTFLocal/Scenarios/" + currentScenario + "/Data");
+            if (!dataFolder.exists()) dataFolder.mkdirs();
+            File dataFile = new File(dataFolder, "newDataFile.xml");
+            try {
+                FileOutputStream f = new FileOutputStream(dataFile);
+                String sampleXml = "<Documents></Documents>";
+                XPath2XmlCreator x2x = new XPath2XmlCreator();
+                x2x.initDocumentFromString(sampleXml);
+                for (Map.Entry<String, utils_edit_config_field> entry : editingHashMap.entrySet()) {
+                    utils_edit_config_field cf = entry.getValue();
+                    x2x.addElement(cf.fieldXPath, cf.fieldDefaultValue);
+                }
+                sampleXml = x2x.getResultingDocument();
+               rootActivity.currentDataXML = sampleXml;
+                x2x = null;
+                f.write(sampleXml.getBytes());
+                f.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                AndroidHelper.showAlertDialog("ERROR", e.getMessage(), this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
+
+//        this would be safer in case nodes are missing in config file
+//        try {
+//            String xq;
+//            xq =    "declare variable $doc external; " +
+//                    "string-join( " +
+//                    "   for $Field in $doc/MTFDemoSpecs/Edit/Field " +
+//                    "   return " +
+//                    "       concat( " +
+//                    "           $Field/FieldId/text(), " +
+//                    "           ':', " +
+//                    "           $Field/FieldLabel/text(), " +
+//                    "           ':', " +
+//                    "           $Field/FieldType/text(), " +
+//                    "           ':', " +
+//                    "           $Field/FieldXPath/text(), " +
+//                    "           ':', " +
+//                    "           $Field/FieldValidValues/text(), " +
+//                    "           ':', " +
+//                    "           $Field/FieldDefaultValue/text()" +
+//                    "       )" +
+//                    "   ," +
+//                    "   ';'" +
+//                    ")";
+//            String r = XMLHelper.runXQueryAgainstXML_saxon9(configFileXML, xq);
+//        } catch (HelperException e) {
+//            e.printStackTrace();
+//    }
 
 //    @Override
 //    public void onStart() {

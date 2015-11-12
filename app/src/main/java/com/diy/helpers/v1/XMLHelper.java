@@ -22,22 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
-
 import java.io.StringWriter;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //saxon 9
 import javax.xml.namespace.QName;
@@ -201,28 +186,55 @@ public class XMLHelper {
 	    return strReturn;
 	}
 	
-	// TODO code adjustment needed for updateNodeInXMLFile
-	public static String updateNodeInXMLFile(String strFileName, String strXPath, String strValue) {
+//	public static String updateNodeInXMLFile(String strFileName, String strXPath, String strValue) {
+//		String strReturn = "nothing done";
+//		try {
+//			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(strFileName));
+//			XPath xpath = XPathFactory.newInstance().newXPath();
+//			NodeList nodes = (NodeList) xpath.evaluate(strXPath, doc, XPathConstants.NODESET);
+//			for (int idx = 0; idx < nodes.getLength(); idx++) {
+//			    nodes.item(idx).setTextContent(strValue);
+//			}
+//			Transformer xformer = TransformerFactory.newInstance().newTransformer();
+//			xformer.transform(new DOMSource(doc), new StreamResult(new File(strFileName)));
+//			xformer = null;
+//			doc = null;
+//			strReturn = "strUpdateNodeInXMLFile sucessfull";
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			strReturn = "Error during strUpdateNodeInXMLFile";
+//		}
+//		return strReturn;
+//	}
+
+	public static String updateNodeInXMLString(String strXML, String strXPath, String strValue) {
 		String strReturn = "nothing done";
 		try {
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(strFileName));
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(strXML)));
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			NodeList nodes = (NodeList) xpath.evaluate(strXPath, doc, XPathConstants.NODESET);
 			for (int idx = 0; idx < nodes.getLength(); idx++) {
-			    nodes.item(idx).setTextContent(strValue);
+				nodes.item(idx).setTextContent(strValue);
 			}
 			Transformer xformer = TransformerFactory.newInstance().newTransformer();
-			xformer.transform(new DOMSource(doc), new StreamResult(new File(strFileName)));
+			StringWriter sw = new StringWriter();
+			xformer.transform(new DOMSource(doc), new StreamResult(sw));
+			sw.flush();
+			strXML = sw.toString();
 			xformer = null;
 			doc = null;
-			strReturn = "strUpdateNodeInXMLFile sucessfull";
+//			another option to write xml to string in more elegant way
+//			DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
+//		    LSSerializer lsSerializer = domImplementation.createLSSerializer();
+//		    return lsSerializer.writeToString(doc);
+			strReturn = strXML;
 		} catch (Exception e) {
 			e.printStackTrace();
 			strReturn = "Error during strUpdateNodeInXMLFile";
-		} 
+		}
 		return strReturn;
 	}
-	
+
 	public static String convertToJSON(String xml) {
 		String strReturn = null;
 		try {

@@ -115,8 +115,8 @@ public class AndroidHelper {
 
             boolean focusSensor = false; //gprefs.getBoolean(CoreHelper.getStringResource(ctx, R.string.GPREF_SENSOR_FOCUS), true);
             boolean qualitySensor = false; //gprefs.getBoolean(CoreHelper.getStringResource(ctx, R.string.GPREF_SENSOR_QUALITY), false);
-            boolean guideLines = true; //gprefs.getBoolean(CoreHelper.getStringResource(ctx, R.string.GPREF_GUIDELINES), false);
-            boolean pictureCrop = true; //gprefs.getBoolean(CoreHelper.getStringResource(ctx, R.string.GPREF_PICTURE_CROP), false);
+            boolean guideLines = false; //gprefs.getBoolean(CoreHelper.getStringResource(ctx, R.string.GPREF_GUIDELINES), false);
+            boolean pictureCrop = false; //gprefs.getBoolean(CoreHelper.getStringResource(ctx, R.string.GPREF_PICTURE_CROP), false);
             String pictureCropColor = "green"; //gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_PICTURE_CROP_COLOR), "green");
             String pictureCropWarningColor = "red"; // = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_PICTURE_CROP_WARNING_COLOR), "red");
             float pictureCropAspectWidth = 8.5f; //String temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_PICTURE_CROP_ASPECT_WIDTH), "8.5"); //getFloat(temp, 8.5f);
@@ -130,7 +130,7 @@ public class AndroidHelper {
             Integer qualityGlare = 0; //temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_SENSOR_QUALITY_GLARE_VALUE), "0");//getInteger(temp, 0);
             Integer qualityPerspective = 0;//temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_SENSOR_QUALITY_PERSPECTIVE_VALUE), "0");//getInteger(temp, 0);
             Integer qualityQuadrilateral = 0; //temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_SENSOR_QUALITY_QUADRILATERAL_VALUE), "0");//getInteger(temp, 0);
-            Integer captureDelayMs = 500;  //temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_CAPTUREDELAY), "");//getInteger(temp, 500);
+            Integer captureDelayMs = 250;  //temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_CAPTUREDELAY), "");//getInteger(temp, 500);
             Integer continuousCaptureFrameDelayMs = 500; //temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_CONTINUOUSCAPTUREFRAMEDELAY), "");//getInteger(temp, 500);
             Integer captureTimeoutMs = 0; //temp = gprefs.getString(CoreHelper.getStringResource(ctx, R.string.GPREF_CAPTURETIMEOUT), "");//getInteger(temp, 0);
             boolean captureImmediately = false; //gprefs.getBoolean(CoreHelper.getStringResource(ctx, R.string.GPREF_AUTOCAPTURE), false);
@@ -208,6 +208,12 @@ public class AndroidHelper {
         );
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public static boolean license() {
+        String applicationId = "EMC World 2014 Demo";
+        String license = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Product=Captiva Mobile SDK, CreateDate=2014-04-23 14:44:54, KeyId=c340-fe9a-ae78, Sales Order No=EMC Internal, Customer Name=EMC Internal DEV, Application Name=EMC World 2014 Demo >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*!0834204886454239320/dVVgd1hAPj0XzDFEdkg+yPbWOR/a8apYFRHv3zDXnVNK2j0GY0ES0KsZxNTy6pUWZw0CY1Mof5Wk1PLqlRZnDQJjUyh/ydeE+dWm1PLqlQhmCynzgXkV7p2HFVpEOA==*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+        return CaptureImage.addLicenseKey(applicationId, license);
     }
 
 }

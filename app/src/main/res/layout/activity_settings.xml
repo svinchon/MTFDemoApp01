@@ -29,7 +29,7 @@
                 android:gravity="center_horizontal|bottom"
                 android:text="Server"
                 android:layout_width="fill_parent"
-                android:checked="false"
+                android:checked="true"
                 android:onClick="activateServer"
                 />
 
@@ -41,7 +41,7 @@
                 android:gravity="center_horizontal|bottom"
                 android:text="Local"
                 android:layout_width="fill_parent"
-                android:checked="true"
+                android:checked="false"
                 android:id="@+id/rbLocal"
                 android:onClick="activateLocal"
                 />
@@ -58,7 +58,7 @@
         android:clickable="false"
         android:orientation="vertical"
         android:showDividers="beginning|middle|end"
-        android:visibility="gone"
+        android:visibility="visible"
         android:touchscreenBlocksFocus="true">
 
         <!-- server ip -->
@@ -167,7 +167,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="visible"
+        android:visibility="gone"
         >
 
         <!-- local scenarios -->

@@ -1,8 +1,11 @@
 package com.diy.cmtdemoapp01;
 
+import android.app.ActionBar;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
@@ -15,7 +18,6 @@ import android.widget.RadioGroup;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-import com.diy.helpers.android.v1.AndroidHelper;
 import com.diy.helpers.v1.Utils;
 import com.diy.helpers.v1.XMLHelper;
 
@@ -40,8 +42,10 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
             currentDataXML,
             currentOCRResult,
             currentPreferencesXML;
+    RadioGroup rg;
     RadioButton rbCamera, rbSearch, rbEdit, rbAttach, rbProcess, rbSettings;
     HashMap<String, utils_edit_config_field> currentEditingHashMap;
+    int portNumber = 18080;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,9 +129,9 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         rbProcess = (RadioButton) findViewById(R.id.rbProcess);
 
         rbCamera.setVisibility(View.GONE);
-        rbSearch.setVisibility(View.GONE);
         rbEdit.setVisibility(View.GONE);
-        rbAttach.setVisibility(View.GONE);
+        rbSearch.setVisibility(View.GONE);
+        //rbAttach.setVisibility(View.GONE);
         rbProcess.setVisibility(View.GONE);
 
         int backgroundColor = Color.parseColor("#FFFFFF");
@@ -150,7 +154,8 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
         sldSettings.addState( new int[]{android.R.attr.state_checked}, new ColorDrawable(backgroundColor) );
         rbSettings.setBackground(sldSettings);
 
-        RadioGroup rg = (RadioGroup) findViewById(R.id.states);
+        //RadioGroup
+        rg = (RadioGroup) findViewById(R.id.states);
 
         rg.setBackgroundColor(Color.parseColor(color_background_primary));
 
@@ -219,6 +224,29 @@ public class activity_main extends TabActivity implements TabHost.TabContentFact
     public void updatePreferencesAndSave(String item, String value) {
         currentPreferencesXML = XMLHelper.updateNodeInXMLString(currentPreferencesXML, "/Preferences/" + item, value);
         Utils.convertByte2File(currentPreferencesXML.getBytes(), rootPath + "/Preferences.xml");
+    }
+
+    public void updateLookAndFeel(String color, String title) {
+        color_background_primary = color;
+        tl.setBackgroundColor(Color.parseColor(color_background_primary));
+        rg.setBackgroundColor(Color.parseColor(color_background_primary));
+        for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) {
+            tabHost.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor(color_background_primary));
+            if (tabHost.getTabWidget().getChildAt(i).isSelected()) {
+                tabHost.getTabWidget().getChildAt(5).setBackgroundColor(Color.parseColor("#FFFFFF"));
+            }
+        }
+        ActionBar bar = getActionBar();
+        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(color_background_primary)));
+        bar.setTitle(title);
+        bar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        bar.setCustomView(R.layout.actionbar_main);
+        TextView tv = (TextView) findViewById(R.id.abtext);
+        ImageView iv = (ImageView) findViewById(R.id.abImage);
+        tv.setText(title);
+        File imgFile = new  File("/sdcard/MTFLocal/Scenarios/"+currentScenario+"/Icon.png");
+        Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+        iv.setImageBitmap(myBitmap);
     }
 
 //        tabHost.addTab(

@@ -99,15 +99,6 @@
             android:text="Simulate OCR Feedback Received"
             />
 
-        <TextView
-            android:id="@+id/tvCaptureLog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="bottom"
-            android:singleLine="false"
-            android:password="false"
-            />
-
     </LinearLayout>
 
 </ScrollView>

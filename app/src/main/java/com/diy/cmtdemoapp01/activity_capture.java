@@ -5,10 +5,12 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +49,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import emc.captiva.mobile.sdk.CaptureException;
 import emc.captiva.mobile.sdk.CaptureImage;
 import emc.captiva.mobile.sdk.PictureCallback;
 
@@ -63,9 +67,10 @@ public class activity_capture extends Activity implements PictureCallback {
     Map<String, utils_capture_mask> masksMap;
 
     int currentImageCount;
+    int timeOut = 30;
     String configFileXML, configFileJSON, currentMaskName, filePath;
     String[] maskNames;
-    List<String> currentImages;
+    Map<Integer, String> currentImagesMap;
 
     activity_main rootActivity;
 
@@ -85,45 +90,121 @@ public class activity_capture extends Activity implements PictureCallback {
         utils_capture_custom_window cust_win;
         cust_win = new utils_capture_custom_window(this, "none", appParameters, masksMap.get(currentMaskName));
         parameters.put(CaptureImage.PICTURE_CAPTUREWINDOW, cust_win);
+        AndroidHelper.license();
         CaptureImage.takePicture(this, parameters);
     }
 
     @Override
     public void onPictureTaken(byte[] bImage) {
-        //tvCaptureLog.append("\nPictureTaken");
         File fullPath = new File(AndroidHelper.getImageGalleryPath(), AndroidHelper.getUniqueFilename("Img", ".JPG"));
         try {
+            // save image as is
             ByteArrayInputStream inputStream = new ByteArrayInputStream(bImage);
             AndroidHelper.saveFile(inputStream, fullPath);
             Uri uri = Uri.fromFile(fullPath);
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-            //Uri contentURI = Uri.parse(imageReturnedIntent.getDataString());
+
+            // load image for editing
+            CaptureImage.load(fullPath.getAbsolutePath());
+
+            // prepare useful variables
+            HashMap<String, Object> parameters = new HashMap<>();
+            HashMap<String, Object> appParameters = new HashMap<>();
+            parameters = AndroidHelper.getTakePictureParameters(this, appParameters);
+            Map<String, Object> properties = CaptureImage.getImageProperties();
+
+            // get current image dimensions
+            int imageWidth = (Integer)properties.get(CaptureImage.IMAGE_PROPERTY_WIDTH);
+            int imageHeight = (Integer)properties.get(CaptureImage.IMAGE_PROPERTY_HEIGHT);
+
+            // crop image according to first box
+            float width_vs_height_ratio = masksMap.get(currentMaskName).boxes[0].width_vs_height_ratio;
+            float width_vs_canvas_width_in_percent = masksMap.get(currentMaskName).boxes[0].width_vs_canvas_width_in_percent;
+            float _boxWidthPercent = width_vs_canvas_width_in_percent;
+            float _boxWidthHeightRatio = width_vs_height_ratio;
+            float _boxWidth = imageWidth *_boxWidthPercent/100;
+            int _boxHeight = (int)(_boxWidth / _boxWidthHeightRatio);
+            int _left = (int)((imageWidth-_boxWidth)/2);
+            int _top=(int)((imageHeight-_boxHeight)/2);
+            int _right=(int)((imageWidth-_boxWidth)/2+_boxWidth);
+            int _bottom=(int)((imageHeight-_boxHeight)/2+_boxHeight);
+            Rect rect = new Rect(
+                    (int)(_left),
+                    (int)(_top),
+                    (int)(_right),
+                    (int)(_bottom)
+            );
+            parameters.put(CaptureImage.FILTER_PARAM_CROP_RECTANGLE, rect);
+            CaptureImage.applyFilters(new String[]{CaptureImage.FILTER_CROP}, parameters);
+
+            // normalize image size
+            int targetWidth, targetHeight;
+            targetWidth = 1024;  targetHeight = 768;
+            boolean isPortrait;
+            float format = (float)imageWidth/imageHeight;
+            float target_max_format = (float)targetWidth/targetHeight;
+            int imageWidthNew = targetWidth;  int imageHeightNew = targetHeight;
+            if (format > 1 ) {
+                isPortrait = false;
+                if (format > target_max_format) {
+                    imageWidthNew = targetWidth;
+                    imageHeightNew = imageHeight / imageWidth * targetHeight;
+                } else {
+                    imageHeightNew = targetHeight;
+                    imageWidthNew = imageWidth / imageHeight * targetWidth;
+                }
+            } else {
+                isPortrait = true;
+                if (format > target_max_format) {
+                    imageWidthNew = targetHeight;
+                    imageHeightNew = imageHeight / imageWidth * targetWidth;
+                } else {
+                    imageHeightNew = targetWidth;
+                    imageWidthNew = imageWidth / imageHeight * targetHeight;
+                }
+            }
+            parameters.put(CaptureImage.FILTER_PARAM_RESIZE_WIDTH, (int)(imageWidthNew));
+            parameters.put(CaptureImage.FILTER_PARAM_RESIZE_HEIGHT, (int) (imageHeightNew));
+            CaptureImage.applyFilters(new String[]{CaptureImage.FILTER_RESIZE}, parameters);
+
+            // save modified image
+            parameters.put(CaptureImage.SAVE_DPIX, 150);
+            parameters.put(CaptureImage.SAVE_DPIY, 150);
+            parameters.put(CaptureImage.SAVE_JPG_QUALITY, 95);
+            try {
+                CaptureImage.saveToFile(fullPath.getAbsolutePath(), CaptureImage.SAVE_JPG, parameters);
+            } catch (CaptureException e) {
+                e.printStackTrace();
+            }
+
+            // generate thumbnail image for UI
             ContentResolver cr = getContentResolver();
             InputStream in = cr.openInputStream(uri);
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize=8;
+            options.inSampleSize=4;
             Bitmap thumb = BitmapFactory.decodeStream(in,null,options);
+
+            // draw UI
             currentImageCount ++;
             int id = 10000+currentImageCount;
-            //LinearLayout llimage = new LinearLayout(this);
-            RelativeLayout llimage = new RelativeLayout(this);
-            llimage.setId(id);
-            //llimage.setOrientation(LinearLayout.HORIZONTAL);
+            RelativeLayout llImage = new RelativeLayout(this);
+            llImage.setId(id);
             ImageView iv = new ImageView(this);
             iv.setImageBitmap(thumb);
-            llimage.addView(iv);
+            llImage.addView(iv);
             ImageView iv_icon = new ImageView(this);
             iv_icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_white_24dp));
             iv_icon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     View v = findViewById(
-                            ((View)view.getParent()).getId()
+                            ((View) view.getParent()).getId()
                     );
-                    ViewGroup vg = (ViewGroup)v.getParent();
+                    ViewGroup vg = (ViewGroup) v.getParent();
                     vg.removeView(v);
                     // TODO delete picture from file system
                     currentImageCount--;
+                    currentImagesMap.remove(v.getId());
                     View b2 = findViewById(R.id.btnCaptureData);
                     View b1 = findViewById(R.id.btnTakePicture);
                     if (Integer.parseInt(masksMap.get(currentMaskName).requiredImageCount) == currentImageCount) {
@@ -135,11 +216,12 @@ public class activity_capture extends Activity implements PictureCallback {
                     }
                 }
             });
-            llimage.addView(iv_icon);
-            llImages.addView(llimage);
-            AndroidHelper.displayMessage("Picture taken ans saved to '" + fullPath + "'", this);
-            currentImages.add(fullPath.toString());
-            AndroidHelper.displayMessage(""+currentImageCount, this);
+            llImage.addView(iv_icon);
+            llImages.addView(llImage);
+            //AndroidHelper.displayMessage("Picture taken ans saved to '" + fullPath + "'", this);
+            //currentImages.add(fullPath.toString());
+            currentImagesMap.put(id, fullPath.getAbsolutePath());
+            //AndroidHelper.displayMessage(""+currentImageCount, this);
             View b2 = findViewById(R.id.btnCaptureData);
             View b1 = findViewById(R.id.btnTakePicture);
             if (Integer.parseInt(masksMap.get(currentMaskName).requiredImageCount) == currentImageCount) {
@@ -151,7 +233,6 @@ public class activity_capture extends Activity implements PictureCallback {
             }
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
-            //Android.displayError(this, "Could not save the image to the gallery.");
         }
     }
 
@@ -292,8 +373,10 @@ public class activity_capture extends Activity implements PictureCallback {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 currentMaskName = maskNames[i];
                 currentImageCount = 0;
-                currentImages = null;
-                currentImages = new ArrayList<String>();
+                //currentImages = null;
+                //currentImages = new ArrayList<String>();
+                currentImagesMap = null;
+                currentImagesMap = new ArrayMap<Integer, String>();
                 llImages.removeAllViews();
                 View b2 = findViewById(R.id.btnCaptureData);
                 View b1 = findViewById(R.id.btnTakePicture);
@@ -312,8 +395,10 @@ public class activity_capture extends Activity implements PictureCallback {
         llImages = (LinearLayout)this.findViewById(R.id.llImages);
         getUpfrontChoicesLevel1();
         currentImageCount = 0;
-        currentImages = null;
-        currentImages = new ArrayList<String>();
+        //currentImages = null;
+        //currentImages = new ArrayList<String>();
+        currentImagesMap = null;
+        currentImagesMap = new ArrayMap<Integer, String>();
     }
 
     public void captureData(View view) {
@@ -329,7 +414,7 @@ public class activity_capture extends Activity implements PictureCallback {
             //progressBar.setProgress(0);
             //</editor-fold>
             super.onPreExecute();
-            AndroidHelper.displayMessage(currentImages.toString(), getApplicationContext());
+            //AndroidHelper.displayMessage(currentImages.toString(), getApplicationContext());
         }
 
         @Override
@@ -355,27 +440,43 @@ public class activity_capture extends Activity implements PictureCallback {
                         //<editor-fold desc="add code to add regular fields here ">
                         //                .addFormDataPart("field", "value")
                         //</editor-fold>
-            for (String cf : currentImages) {
+            /**/int i=0;
+            for (Map.Entry<Integer, String> entry : currentImagesMap.entrySet()) {
+                i++;
+                String cf = entry.getValue();
                 File sourceFile = new File(cf);
                 mb.addFormDataPart(
-                        "image_file",
+                        "image_file_"+i,
                         cf,
                         RequestBody.create(
                                 MediaType.parse("image/png"),
                                 sourceFile //has to return a file object
                         )
                 );
-            }
-            mb.addFormDataPart("Scenario", rootActivity.currentScenario);
+            }/**/
+            /*String cf = rootActivity.rootPath + "/Test/index.tif";
+            File sourceFile = new File(cf);
+            mb.addFormDataPart(
+                "image_file_1",
+                cf,
+                RequestBody.create(
+                    MediaType.parse("image/tif"),
+                    sourceFile //has to return a file object
+                )
+            );*/
+
+            mb.addFormDataPart("scenario", rootActivity.currentScenario);
             RequestBody requestBody =  mb.build();
             Request request = new Request.Builder()
-                .url("http://" + rootActivity.currentServerIP + ":18080/MTFServer01/rest/MTFServer01REST/uploadAndProcessImages")
+                .url("http://" + rootActivity.currentServerIP + ":" + rootActivity.portNumber + "/MTFServer01/rest/MTFServer01REST/uploadAndProcessImages")
                         //<editor-fold desc="add code for authentication here">
                         //                .addHeader("X-Auth-Token", "user")
                         //</editor-fold>
                 .post(requestBody)
                 .build();
             OkHttpClient client = new OkHttpClient();
+            client.setConnectTimeout(timeOut, TimeUnit.SECONDS);
+            client.setReadTimeout(timeOut, TimeUnit.SECONDS);
             try {
                 Response response = client.newCall(request).execute();
                 responseString = response.body().string();
@@ -391,8 +492,7 @@ public class activity_capture extends Activity implements PictureCallback {
             super.onPostExecute(result);
             showAlertDialog(result);
             rootActivity.currentOCRResult = result;
-            UpdateCurrentDataXML();
-
+            //UpdateCurrentDataXML();
         }
 
     }
@@ -413,12 +513,16 @@ public class activity_capture extends Activity implements PictureCallback {
             if (fieldsMap.get(fieldName)!=null) currentDataXML = XMLHelper.updateNodeInXMLString(currentDataXML, xPath, fieldsMap.get(fieldName));
         }
         rootActivity.currentDataXML = currentDataXML;
+        rootActivity.refreshEditTab();
+        rootActivity.rbEdit.toggle();
 
     }
 
     public void onOCRFeedbackReceived(View view) {
-        onOCRFeedbackReceivedJSON();
-        onOCRFeedbackReceivedXML();
+        rootActivity.currentOCRResult = Utils.convertFile2String(rootActivity.rootPath + "/Test/captiva_result.xml");
+        UpdateCurrentDataXML();
+        //onOCRFeedbackReceivedJSON();
+        //onOCRFeedbackReceivedXML();
     }
 
     public void onOCRFeedbackReceivedXML() {

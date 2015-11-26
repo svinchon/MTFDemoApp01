@@ -3,6 +3,7 @@ package com.diy.cmtdemoapp01;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,7 +46,7 @@ public class activity_settings extends Activity {
     EditText etServerIP;
     Spinner spServerScenarios, spServerConfigFiles, spLocalScenarios, spLocalConfigFiles;
     activity_main rootActivity;
-    int portNumber = 80;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,7 @@ public class activity_settings extends Activity {
         spServerScenarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                //getServerConfigFilesList();
+                getServerConfigFilesList();
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -100,12 +101,12 @@ public class activity_settings extends Activity {
         String ip = etServerIP.getText().toString(); // get server ip from text field
         rootActivity.currentServerIP = ip;
         rootActivity.updatePreferencesAndSave("ServerIP", ip);
-        //getServerScenariosList();
+        getServerScenariosList();
     }
 
     public void getServerScenariosList() {
         try {
-            String url ="http://"+rootActivity.currentServerIP+":"+portNumber+"/MTFServer01/rest/MTFServer01REST/getScenariosList";
+            String url ="http://"+rootActivity.currentServerIP+":"+rootActivity.portNumber+"/MTFServer01/rest/MTFServer01REST/getScenariosList";
             RESTHelperCallRequest req = new RESTHelperCallRequest(); // prepare request
             req.setURL(url); req.setRequestType("GET");
             RESTHelper rh = new RESTHelper(); // prepare helper
@@ -131,7 +132,7 @@ public class activity_settings extends Activity {
             String ip = etServerIP.getText().toString();
             String scenario = spServerScenarios.getSelectedItem().toString();
             rootActivity.currentScenario = scenario;
-            String url ="http://"+ip+":"+portNumber+"/MTFServer01/rest/MTFServer01REST/getConfigFilesList";
+            String url ="http://"+ip+":"+rootActivity.portNumber+"/MTFServer01/rest/MTFServer01REST/getConfigFilesList";
             RESTHelperCallRequest req = new RESTHelperCallRequest();
             req.setURL(url); req.setRequestType("GET"); req.addParameter("Scenario", scenario);
             RESTHelper rh = new RESTHelper();
@@ -158,12 +159,14 @@ public class activity_settings extends Activity {
             String ip = etServerIP.getText().toString();
             String scenario = spServerScenarios.getSelectedItem().toString();
             String configFileName = spServerConfigFiles.getSelectedItem().toString();
-            String url ="http://"+ip+":"+portNumber+"/MTFServer01/rest/MTFServer01REST/getConfigFile";
             RESTHelperCallRequest req = new RESTHelperCallRequest();
-            req.setURL(url); req.setRequestType("GET"); req.addParameter("Scenario", scenario); req.addParameter("ConfigFile", configFileName);
             RESTHelper rh = new RESTHelper();
+            RESTHelperCallResult res;
+            String url;
+            url = "http://"+ip+":"+rootActivity.portNumber+"/MTFServer01/rest/MTFServer01REST/getConfigFile";
+            req.setURL(url); req.setRequestType("GET"); req.addParameter("Scenario", scenario); req.addParameter("ConfigFile", configFileName);
             rh.setReq(req); rh.execute();
-            RESTHelperCallResult res = rh.getRESTCallResult();
+            res = rh.getRESTCallResult();
             if (res.getStatus()!= "error") {
                 String configFileXML = res.getContent();
                 rootActivity.currentConfigFileXML = configFileXML;
@@ -173,6 +176,10 @@ public class activity_settings extends Activity {
                 AndroidHelper.displayMessage("config file '" + configFileName + "' downloaded, loaded, & saved", this);
                 createEditingHashMaps();
                 createSampleDataXML();
+                rootActivity.rbCamera.toggle();
+                String color = XMLHelper.getValueFromXML(configFileXML, "/MTFDemoSpecs/CorporateID/MainColor");
+                String brand = XMLHelper.getValueFromXML(configFileXML, "/MTFDemoSpecs/CorporateID/Brand");
+                rootActivity.updateLookAndFeel(color, brand);
                 if (AndroidHelper.checkExternalMedia().indexOf("W")>=0) {
                     File root = android.os.Environment.getExternalStorageDirectory();
                     File dir = new File (root.getAbsolutePath() + "/MTFLocal/Scenarios/"+scenario);
@@ -182,6 +189,20 @@ public class activity_settings extends Activity {
                         FileOutputStream f = new FileOutputStream(file);
                         f.write(configFileXML.getBytes());
                         f.close();
+                        url = "http://"+ip+":"+rootActivity.portNumber+"/MTFServer01/rest/MTFServer01REST/getIcon";
+                        req.setURL(url); req.setRequestType("GET"); req.addParameter("Scenario", scenario);
+                        rh.setReq(req); rh.execute();
+                        res = rh.getRESTCallResult();
+                        if (res.getStatus()!="error") {
+                            String icon = res.getContent();
+                            File iconFile = new File(dir, "Icon.png");
+                            FileOutputStream iconFIS = new FileOutputStream(iconFile);
+                            byte[] iconBytes;
+                            iconBytes = icon.getBytes("UTF-8");
+                            iconBytes = Base64.decode(iconBytes, Base64.DEFAULT);
+                            iconFIS.write(iconBytes);
+                            iconFIS.close();
+                        }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                         AndroidHelper.showAlertDialog("ERROR", e.getMessage(), this);
@@ -242,9 +263,11 @@ public class activity_settings extends Activity {
             rootActivity.currentScenario = scenario;
             rootActivity.currentConfigFileName = configFileName;
             rootActivity.refreshCaptureTab();
+            rootActivity.rbEdit.setVisibility(View.GONE);
             AndroidHelper.displayMessage("config file '" + configFileName + "' loaded", this);
             createEditingHashMaps();
             createSampleDataXML();
+            rootActivity.rbCamera.toggle();
         } catch (IOException e) {
             e.printStackTrace();
         }
